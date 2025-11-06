@@ -51,11 +51,11 @@ export default function SocialFeed() {
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'rotate(0deg) scale(1.05)'
-                  e.currentTarget.style.zIndex = 10
+                  e.currentTarget.style.zIndex = '10'
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = `rotate(${rotation}deg) scale(1)`
-                  e.currentTarget.style.zIndex = 1
+                  e.currentTarget.style.zIndex = '1'
                 }}
               >
                 <div style={{
