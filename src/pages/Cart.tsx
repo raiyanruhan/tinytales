@@ -45,15 +45,14 @@ export default function CartPage() {
                 <h2 style={{ margin: 0 }}>Items ({state.items.length})</h2>
                 <button
                   onClick={clear}
+                  className="btn-3d"
                   style={{
-                    background: 'transparent',
+                    background: 'var(--white)',
                     color: 'var(--coral)',
-                    fontWeight: 600,
-                    fontSize: 14,
-                    padding: '8px 16px',
-                    borderRadius: 'var(--radius-sm)',
-                    border: '1px solid var(--coral)',
-                    cursor: 'pointer'
+                    fontWeight: 700,
+                    fontSize: 16,
+                    padding: '12px 24px',
+                    minWidth: 'auto'
                   }}
                 >
                   Clear All
@@ -107,22 +106,21 @@ export default function CartPage() {
                             width: 80,
                             padding: '8px 12px',
                             borderRadius: 'var(--radius-sm)',
-                            border: '1px solid #ddd',
+                            border: '1px solid var(--border-subtle)',
                             fontSize: 16,
                             fontWeight: 600
                           }}
                         />
                         <button
                           onClick={() => removeItem(item.id, item.size)}
+                          className="btn-3d"
                           style={{
-                            background: 'transparent',
+                            background: 'var(--white)',
                             color: 'var(--coral)',
-                            padding: '8px 12px',
-                            borderRadius: 'var(--radius-sm)',
-                            border: '1px solid var(--coral)',
-                            cursor: 'pointer',
+                            padding: '10px 20px',
                             fontSize: 14,
-                            fontWeight: 600
+                            fontWeight: 700,
+                            minWidth: 'auto'
                           }}
                         >
                           Remove
@@ -214,7 +212,7 @@ export default function CartPage() {
                     borderRadius: 'var(--radius-sm)',
                     fontSize: 14,
                     textAlign: 'center',
-                    color: '#1c1c1c',
+                    color: 'var(--ink)',
                     fontWeight: 600
                   }}>
                     Add ${(50 - totalPrice).toFixed(2)} more for free shipping!

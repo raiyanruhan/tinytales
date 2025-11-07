@@ -71,8 +71,8 @@ export default function Newsletter() {
               style={{
                 background: 'var(--white)',
                 color: 'var(--mint)',
-                padding: '16px 32px',
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap',
+                minWidth: 'auto'
               }}
             >
               {submitted ? '✓ Joined!' : 'Subscribe'}

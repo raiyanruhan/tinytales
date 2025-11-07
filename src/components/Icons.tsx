@@ -16,7 +16,7 @@ export const CartIcon = ({ size = '1x', style }: { size?: string; style?: React.
 )
 
 export const HeartIcon = ({ size = '1x', style }: { size?: string; style?: React.CSSProperties }) => (
-  <FontAwesomeIcon icon={faHeart} size={size as any} style={{ color: '#e74c3c', ...style } as any} />
+  <FontAwesomeIcon icon={faHeart} size={size as any} style={{ color: 'var(--coral)', ...style } as any} />
 )
 
 export const HeartOutlineIcon = ({ size = '1x', style }: { size?: string; style?: React.CSSProperties }) => (

@@ -26,7 +26,7 @@ export default function CheckoutPage() {
             <div style={field}><label>City</label><input required /></div>
             <div style={field}><label>Postal code</label><input required /></div>
           </div>
-          <button type="submit" style={payBtn}>Pay ${totalPrice.toFixed(2)}</button>
+          <button type="submit" className="btn-pay" style={{ marginTop: 8 }}>Pay ${totalPrice.toFixed(2)}</button>
         </form>
         <div style={{ padding: 18, background: 'var(--cream)' }}>
           <h3 style={{ marginTop: 0 }}>Summary</h3>
@@ -36,7 +36,7 @@ export default function CheckoutPage() {
               <div>${(i.price * i.quantity).toFixed(2)}</div>
             </div>
           ))}
-          <div style={{ borderTop: '1px dashed #d9d9d9', marginTop: 10, paddingTop: 10, fontWeight: 700 }}>Total ${totalPrice.toFixed(2)}</div>
+          <div style={{ borderTop: '1px dashed var(--border-medium)', marginTop: 10, paddingTop: 10, fontWeight: 700 }}>Total ${totalPrice.toFixed(2)}</div>
         </div>
       </div>
     </section>
@@ -44,23 +44,13 @@ export default function CheckoutPage() {
 }
 
 const field: React.CSSProperties = { display: 'grid', gap: 6, marginBottom: 10 }
-const payBtn: React.CSSProperties = {
-  marginTop: 8,
-  background: 'linear-gradient(135deg, var(--sky), var(--mint))',
-  color: '#fff',
-  border: 'none',
-  padding: '12px 16px',
-  borderRadius: 14,
-  cursor: 'pointer',
-  fontWeight: 800
-}
 
 const inputStyle: React.CSSProperties = {}
 
 // globally style inputs via element selectors
 const style = document.createElement('style')
 style.innerHTML = `
-  input { padding: 10px 12px; border: 1px solid #e1e1e1; border-radius: 10px; }
+  input { padding: 10px 12px; border: 1px solid var(--border-light); border-radius: 10px; }
   input:focus { outline: 2px solid var(--sky); border-color: transparent; }
 `
 document.head.append(style)

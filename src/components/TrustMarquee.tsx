@@ -3,11 +3,10 @@ import { StarIcon } from './Icons'
 export default function TrustMarquee() {
   const partners = [
     'Trusted by 10,000+ families',
-    'Free shipping in India',
+    'Free shipping in Dhaka',
     '30-day easy returns',
     '100% natural fabrics',
     'Safe for sensitive skin',
-    'Made with love'
   ]
 
   return (
@@ -15,7 +14,9 @@ export default function TrustMarquee() {
       background: 'var(--cream)',
       padding: '32px 0',
       overflow: 'hidden',
-      position: 'relative'
+      position: 'relative',
+      marginTop: 0,
+      marginBottom: 0
     }}>
       <div style={{
         display: 'flex',

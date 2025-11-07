@@ -92,13 +92,13 @@ export default function ProductPage() {
                     <button
                       key={s}
                       onClick={() => setSize(s)}
-                      className="badge"
+                      className="btn-3d"
                       style={{
-                        background: s === size ? 'var(--mint)' : 'var(--cream)',
+                        background: s === size ? 'var(--mint)' : 'var(--white)',
                         color: s === size ? '#fff' : 'var(--navy)',
-                        padding: '12px 20px',
-                        fontSize: 15,
-                        cursor: 'pointer'
+                        padding: '12px 24px',
+                        fontSize: 16,
+                        minWidth: 'auto'
                       }}
                     >
                       {s}

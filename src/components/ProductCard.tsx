@@ -80,22 +80,15 @@ export default function ProductCard({ product }: { product: Product }) {
               setIsFavorite(!isFavorite)
             }}
             aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+            className="btn-3d-small"
             style={{
               position: 'absolute',
               top: 12,
               right: 12,
-              width: 40,
-              height: 40,
-              borderRadius: '50%',
-              background: 'rgba(255,255,255,0.9)',
-              border: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 20,
-              cursor: 'pointer',
-              transition: 'var(--transition-fast)',
-              transform: isFavorite ? 'scale(1.2)' : 'scale(1)'
+              width: 44,
+              height: 44,
+              background: 'rgba(255,255,255,0.95)',
+              transform: isFavorite ? 'scale(1.1)' : 'scale(1)'
             }}
           >
             {isFavorite ? <HeartIcon size="lg" /> : <HeartOutlineIcon size="lg" />}
@@ -150,15 +143,12 @@ export default function ProductCard({ product }: { product: Product }) {
         >
           <button
             onClick={handleQuickAdd}
+            className="btn-3d"
             style={{
               width: '100%',
               background: 'var(--white)',
               color: 'var(--mint)',
-              padding: '10px',
-              borderRadius: 'var(--radius-sm)',
-              fontWeight: 700,
-              fontSize: 14,
-              cursor: 'pointer'
+              fontSize: 16
             }}
           >
             Quick Add to Cart
