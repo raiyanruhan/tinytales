@@ -1,28 +1,38 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Header from '@components/Header'
 import { CartProvider } from '@context/CartContext'
+import { AuthProvider } from '@context/AuthContext'
 import Home from '@pages/Home'
 import CategoryPage from '@pages/Category'
+import AllProducts from '@pages/AllProducts'
 import ProductPage from '@pages/Product'
 import CartPage from '@pages/Cart'
 import CheckoutPage from '@pages/Checkout'
+import Login from '@pages/Login'
+import Signup from '@pages/Signup'
+import EmailVerification from '@pages/EmailVerification'
 import NotFound from '@pages/NotFound'
 
 export default function App() {
   return (
-    <CartProvider>
-      <Header />
-      <main style={{ paddingTop: '80px' }}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/category/:cat" element={<CategoryPage />} />
-          <Route path="/product/:id" element={<ProductPage />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/home" element={<Navigate to="/" replace />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </main>
+    <AuthProvider>
+      <CartProvider>
+        <Header />
+        <main style={{ paddingTop: '80px' }}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/products" element={<AllProducts />} />
+            <Route path="/category/:cat" element={<CategoryPage />} />
+            <Route path="/product/:id" element={<ProductPage />} />
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/verify-email" element={<EmailVerification />} />
+            <Route path="/home" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </main>
       <footer style={{
         background: 'var(--navy)',
         color: '#fff',
@@ -102,6 +112,7 @@ export default function App() {
           </div>
         </div>
       </footer>
-    </CartProvider>
+      </CartProvider>
+    </AuthProvider>
   )
 }

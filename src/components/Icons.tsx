@@ -7,7 +7,8 @@ import {
   faGift,
   faMoon,
   faTshirt,
-  faShirt
+  faShirt,
+  faUser
 } from '@fortawesome/free-solid-svg-icons'
 import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons'
 
@@ -41,6 +42,10 @@ export const ShirtIcon = ({ size = '1x', style }: { size?: string; style?: React
 
 export const MoonIcon = ({ size = '1x', style }: { size?: string; style?: React.CSSProperties }) => (
   <FontAwesomeIcon icon={faMoon} size={size as any} style={style as any} />
+)
+
+export const PersonIcon = ({ size = '1x', style }: { size?: string; style?: React.CSSProperties }) => (
+  <FontAwesomeIcon icon={faUser} size={size as any} style={style as any} />
 )
 
 const categoryIcons: Record<string, any> = {

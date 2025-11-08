@@ -100,7 +100,7 @@ export default function Hero() {
           </p>
 
            <Link
-             to="/category/Newborn"
+             to="/products"
              className="btn-primary"
              style={{
                display: 'inline-block',
