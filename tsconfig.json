@@ -18,7 +18,8 @@
       "@pages/*": ["src/pages/*"],
       "@styles/*": ["src/styles/*"],
       "@data/*": ["src/data/*"],
-      "@context/*": ["src/context/*"]
+      "@context/*": ["src/context/*"],
+      "@services/*": ["src/services/*"]
     }
   },
   "include": ["src"]

@@ -1,17 +1,17 @@
 import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
 
-dotenv.config();
-
-// Create transporter
+// Create transporter with hardcoded credentials
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT || '465'),
+  host: 'mail.tinytalesearth.com',
+  port: 465,
   secure: true, // true for 465, false for other ports
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
+    user: 'no-reply@tinytalesearth.com',
+    pass: 'bDkBHvKct_PTb9d+',
   },
+  tls: {
+    rejectUnauthorized: false // Allow self-signed certificates if needed
+  }
 });
 
 // Generate 6-digit OTP
@@ -22,7 +22,7 @@ export function generateOTP() {
 // Send verification email
 export async function sendVerificationEmail(email, otp) {
   const mailOptions = {
-    from: `"TinyTales" <${process.env.SMTP_USER}>`,
+    from: `"TinyTales" <no-reply@tinytalesearth.com>`,
     to: email,
     subject: 'Verify Your TinyTales Account',
     html: `

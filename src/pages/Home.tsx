@@ -1,4 +1,6 @@
-import { getByCategory, products } from '@data/products'
+import { useState, useEffect } from 'react'
+import { getProducts } from '@services/productApi'
+import { getByCategory, products as fallbackProducts } from '@data/products'
 import Hero from '@components/Hero'
 import CategoryGrid from '@components/CategoryGrid'
 import ProductCard from '@components/ProductCard'
@@ -6,8 +8,29 @@ import TrustMarquee from '@components/TrustMarquee'
 import PromotionalBanner from '@components/PromotionalBanner'
 import SocialFeed from '@components/SocialFeed'
 import Newsletter from '@components/Newsletter'
+import { Product } from '@services/productApi'
 
 export default function Home() {
+  const [allProducts, setAllProducts] = useState<Product[]>([])
+
+  useEffect(() => {
+    loadProducts()
+  }, [])
+
+  const loadProducts = async () => {
+    try {
+      const data = await getProducts()
+      setAllProducts(data)
+    } catch (error) {
+      console.error('Failed to load products from API, using fallback:', error)
+      setAllProducts(fallbackProducts as Product[])
+    }
+  }
+
+  const getProductsByCategory = (category: string) => {
+    return allProducts.filter(p => p.category === category)
+  }
+
   return (
     <>
       <Hero />
@@ -29,7 +52,7 @@ export default function Home() {
             gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
             gap: 24
           }}>
-            {getByCategory('Sets').slice(0, 4).map(p => (
+            {getProductsByCategory('Sets').slice(0, 4).map(p => (
               <ProductCard key={p.id} product={p} />
             ))}
           </div>
@@ -49,7 +72,7 @@ export default function Home() {
             gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
             gap: 24
           }}>
-            {getByCategory('Onesies').slice(0, 4).map(p => (
+            {getProductsByCategory('Onesies').slice(0, 4).map(p => (
               <ProductCard key={p.id} product={p} />
             ))}
           </div>
@@ -71,7 +94,7 @@ export default function Home() {
             gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
             gap: 24
           }}>
-            {products.slice(0, 6).map(p => (
+            {allProducts.slice(0, 6).map(p => (
               <ProductCard key={p.id} product={p} />
             ))}
           </div>

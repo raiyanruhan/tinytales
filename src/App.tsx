@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import Header from '@components/Header'
 import { CartProvider } from '@context/CartContext'
 import { AuthProvider } from '@context/AuthContext'
+import AdminRoute from '@components/AdminRoute'
 import Home from '@pages/Home'
 import CategoryPage from '@pages/Category'
 import AllProducts from '@pages/AllProducts'
@@ -11,6 +12,7 @@ import CheckoutPage from '@pages/Checkout'
 import Login from '@pages/Login'
 import Signup from '@pages/Signup'
 import EmailVerification from '@pages/EmailVerification'
+import Dashboard from '@pages/Dashboard'
 import NotFound from '@pages/NotFound'
 
 export default function App() {
@@ -29,6 +31,7 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/verify-email" element={<EmailVerification />} />
+            <Route path="/dashboard" element={<AdminRoute><Dashboard /></AdminRoute>} />
             <Route path="/home" element={<Navigate to="/" replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -110,6 +110,14 @@ export default function Header() {
           >
             Accessories
           </NavLink>
+          {isAuthenticated && user?.email.toLowerCase() === 'raiyanbinrashid0@gmail.com' && (
+            <NavLink 
+              to="/dashboard" 
+              className="nav-link"
+            >
+              Dashboard
+            </NavLink>
+          )}
         </nav>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, position: 'relative' }}>

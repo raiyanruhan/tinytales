@@ -1,16 +1,56 @@
+import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { getProduct } from '@data/products'
+import { getProduct as getProductFromApi } from '@services/productApi'
+import { getProduct as getProductFromData, products as fallbackProducts } from '@data/products'
 import QuantitySelector from '@components/QuantitySelector'
-import { useState } from 'react'
 import { useCart } from '@context/CartContext'
 import { Link } from 'react-router-dom'
+import { Product } from '@services/productApi'
 
 export default function ProductPage() {
   const { id } = useParams()
-  const product = getProduct(id!)
+  const [product, setProduct] = useState<Product | null>(null)
+  const [loading, setLoading] = useState(true)
   const [qty, setQty] = useState(1)
-  const [size, setSize] = useState(product?.sizes[0])
+  const [size, setSize] = useState<string | undefined>()
   const { addItem } = useCart()
+
+  useEffect(() => {
+    loadProduct()
+  }, [id])
+
+  const loadProduct = async () => {
+    if (!id) return
+    
+    try {
+      setLoading(true)
+      const data = await getProductFromApi(id)
+      setProduct(data)
+      setSize(data.sizes[0])
+    } catch (error) {
+      console.error('Failed to load product from API, using fallback:', error)
+      // Fallback to static data if API fails
+      const fallback = getProductFromData(id)
+      if (fallback) {
+        setProduct(fallback as Product)
+        setSize(fallback.sizes[0])
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <section style={{ padding: '64px 0', background: 'var(--cream)' }}>
+        <div className="container">
+          <div style={{ textAlign: 'center', padding: '64px 0' }}>
+            <div style={{ fontSize: 18, color: 'var(--navy)' }}>Loading product...</div>
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   if (!product) {
     return (
@@ -25,6 +65,18 @@ export default function ProductPage() {
     )
   }
 
+  // Handle both old format (string[]) and new format (ProductColor[])
+  const getProductImage = () => {
+    if (product.image) return product.image
+    if (Array.isArray(product.colors) && product.colors.length > 0) {
+      const firstColor = product.colors[0]
+      if (typeof firstColor === 'object' && 'images' in firstColor && firstColor.images.length > 0) {
+        return firstColor.images[0]
+      }
+    }
+    return ''
+  }
+
   return (
     <section style={{ padding: '64px 0', background: 'var(--cream)' }}>
       <div className="container">
@@ -36,12 +88,15 @@ export default function ProductPage() {
           }}>
             <div style={{ aspectRatio: '1/1', overflow: 'hidden' }}>
               <img
-                src={product.image}
+                src={getProductImage().startsWith('http') ? getProductImage() : `http://localhost:3001${getProductImage()}`}
                 alt={product.name}
                 style={{
                   width: '100%',
                   height: '100%',
                   objectFit: 'cover'
+                }}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect width="100" height="100" fill="%23ddd"/%3E%3Ctext x="50" y="50" text-anchor="middle" dy=".3em" fill="%23999"%3ENo Image%3C/text%3E%3C/svg%3E';
                 }}
               />
             </div>
@@ -120,7 +175,7 @@ export default function ProductPage() {
                       id: product.id,
                       name: product.name,
                       price: product.price,
-                      image: product.image,
+                      image: getProductImage(),
                       size
                     }, qty)
                   }}

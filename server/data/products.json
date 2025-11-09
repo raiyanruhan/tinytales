@@ -1,0 +1,30 @@
+[
+  {
+    "id": "green-striped-and-embroidered-mixed-cotton-panjabi-1762612525066",
+    "name": "Green Striped and Embroidered Mixed Cotton Panjabi",
+    "price": 900,
+    "category": "Sets",
+    "description": "Elevate your traditional wardrobe with this elegant Green Striped Panjabi, crafted from a breathable mixed cotton blend for all-day comfort. The subtle vertical stripes add a touch of modern flair, while the intricate embroidery along the neckline and placket showcases timeless craftsmanship. Perfect for festive occasions or casual gatherings, this Panjabi blends heritage with contemporary style.",
+    "colors": [
+      {
+        "name": "Green",
+        "images": [
+          "https://mcprod.aarong.com/media/catalog/product/0/2/0270000017226.jpg?optimize=high&bg-color=255,255,255&fit=bounds&height=&width="
+        ]
+      }
+    ],
+    "sizes": [
+      "0-3m"
+    ],
+    "stock": {
+      "0-3m-Green": 100
+    },
+    "order": 1,
+    "badges": [
+      "New"
+    ],
+    "image": "https://mcprod.aarong.com/media/catalog/product/0/2/0270000017226.jpg?optimize=high&bg-color=255,255,255&fit=bounds&height=&width=",
+    "createdAt": "2025-11-08T14:35:25.067Z",
+    "updatedAt": "2025-11-08T14:35:31.146Z"
+  }
+]

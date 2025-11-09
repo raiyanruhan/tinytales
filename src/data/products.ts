@@ -1,15 +1,24 @@
 export type Category = 'Newborn' | 'Onesies' | 'Sets' | 'Sleepwear' | 'Accessories'
 
+export type ProductColor = {
+  name: string
+  images: string[]
+}
+
 export type Product = {
   id: string
   name: string
   price: number
   category: Category
   description: string
-  colors: string[]
+  colors: string[] | ProductColor[] // Support both old format (string[]) and new format (ProductColor[])
   sizes: string[]
   image: string
   badges?: string[]
+  stock?: Record<string, number> // Stock per size-color combination
+  order?: number // Display order
+  createdAt?: string
+  updatedAt?: string
 }
 
 export const categories: { key: Category; color: string; bg: string }[] = [

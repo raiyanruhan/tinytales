@@ -1,8 +1,44 @@
-import { products } from '@data/products'
+import { useState, useEffect } from 'react'
+import { getProducts } from '@services/productApi'
+import { products as fallbackProducts } from '@data/products'
 import ProductCard from '@components/ProductCard'
 import { ShirtIcon } from '@components/Icons'
+import { Product } from '@services/productApi'
 
 export default function AllProductsPage() {
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadProducts()
+  }, [])
+
+  const loadProducts = async () => {
+    try {
+      setLoading(true)
+      const data = await getProducts()
+      setProducts(data)
+    } catch (error) {
+      console.error('Failed to load products from API, using fallback:', error)
+      // Fallback to static data if API fails
+      setProducts(fallbackProducts as Product[])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <section style={{ padding: '64px 0', background: 'var(--cream)' }}>
+        <div className="container">
+          <div style={{ textAlign: 'center', padding: '64px 0' }}>
+            <div style={{ fontSize: 18, color: 'var(--navy)' }}>Loading products...</div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section style={{ padding: '64px 0', background: 'var(--cream)' }}>
       <div className="container">
