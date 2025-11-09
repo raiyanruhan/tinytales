@@ -1,0 +1,155 @@
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+
+export interface OrderItem {
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  size?: string;
+  color?: string;
+  image: string;
+}
+
+export interface OrderAddress {
+  firstName: string;
+  lastName: string;
+  mobileNumber: string;
+  streetAddress: string;
+  country: string;
+  regionState: string;
+  cityArea: string;
+  zipPostalCode: string;
+  sameAddress?: boolean;
+  deliveryInstructions?: string;
+}
+
+export interface Order {
+  id: string;
+  orderNumber: string;
+  email: string;
+  userId?: string;
+  items: OrderItem[];
+  shipping: {
+    method: string;
+    cost: number;
+  };
+  payment: {
+    method: string;
+  };
+  address: OrderAddress;
+  status: string;
+  adminStatus?: string;
+  shipperName?: string;
+  createdAt: string;
+  updatedAt: string;
+  cancelledAt?: string;
+  cancelledBy?: string;
+}
+
+export interface LocationData {
+  districts: {
+    [districtName: string]: string[];
+  };
+}
+
+async function fetchWithAuth(url: string, options: RequestInit = {}) {
+  const token = localStorage.getItem('authToken');
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+    ...(token && { Authorization: `Bearer ${token}` }),
+    ...options.headers as HeadersInit,
+  };
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Request failed' }));
+      throw new Error(error.error || `Request failed with status ${response.status}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error('Network error: Unable to connect to server. Please make sure the backend server is running on http://localhost:3001');
+    }
+    throw error;
+  }
+}
+
+export async function createOrder(orderData: {
+  email: string;
+  userId?: string;
+  items: OrderItem[];
+  shipping: { method: string; cost: number };
+  payment: { method: string };
+  address: OrderAddress;
+}): Promise<Order> {
+  return fetchWithAuth(`${API_URL}/orders`, {
+    method: 'POST',
+    body: JSON.stringify(orderData),
+  }).then(data => data.order);
+}
+
+export async function getOrders(): Promise<Order[]> {
+  return fetchWithAuth(`${API_URL}/orders`).then(data => data.orders);
+}
+
+export async function getOrder(id: string): Promise<Order> {
+  return fetchWithAuth(`${API_URL}/orders/${id}`).then(data => data.order);
+}
+
+export async function getOrdersByEmail(email: string): Promise<Order[]> {
+  return fetchWithAuth(`${API_URL}/orders/email/${encodeURIComponent(email)}`).then(data => data.orders);
+}
+
+export async function updateOrderStatus(
+  id: string,
+  status: string,
+  adminStatus?: string,
+  shipperName?: string
+): Promise<Order> {
+  return fetchWithAuth(`${API_URL}/orders/${id}/status`, {
+    method: 'PUT',
+    body: JSON.stringify({ status, adminStatus, shipperName }),
+  }).then(data => data.order);
+}
+
+export async function approveOrder(id: string): Promise<Order> {
+  return fetchWithAuth(`${API_URL}/orders/${id}/approve`, {
+    method: 'PUT',
+  }).then(data => data.order);
+}
+
+export async function refuseOrder(id: string, reason?: string): Promise<Order> {
+  return fetchWithAuth(`${API_URL}/orders/${id}/refuse`, {
+    method: 'PUT',
+    body: JSON.stringify({ reason }),
+  }).then(data => data.order);
+}
+
+export async function cancelOrder(id: string, reason?: string, userEmail?: string): Promise<Order> {
+  return fetchWithAuth(`${API_URL}/orders/${id}/cancel`, {
+    method: 'PUT',
+    body: JSON.stringify({ reason, email: userEmail }),
+  }).then(data => data.order);
+}
+
+export async function getLocations(): Promise<LocationData> {
+  try {
+    const response = await fetch(`${API_URL}/locations`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch locations');
+    }
+    return response.json();
+  } catch (error) {
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error('Network error: Unable to connect to server. Please make sure the backend server is running on http://localhost:3001');
+    }
+    throw error;
+  }
+}
+

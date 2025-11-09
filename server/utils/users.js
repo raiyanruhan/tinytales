@@ -78,3 +78,39 @@ export function updateUserVerification(userId, verified) {
   return user;
 }
 
+// Get saved cart for user
+export function getSavedCart(userId) {
+  const user = getUserById(userId);
+  return user?.savedCart || null;
+}
+
+// Save cart for user
+export function saveCart(userId, cartItems) {
+  const user = getUserById(userId);
+  if (!user) {
+    throw new Error('User not found');
+  }
+  
+  user.savedCart = cartItems;
+  user.updatedAt = new Date().toISOString();
+  saveUser(user);
+  return user.savedCart;
+}
+
+// Clear saved cart (on logout - but keep on server per requirements)
+// Actually, per requirements, we don't clear server cart on logout
+// This function is kept for potential future use
+export function clearSavedCart(userId) {
+  const user = getUserById(userId);
+  if (!user) {
+    throw new Error('User not found');
+  }
+  
+  // Per requirements: server cart persists on server even after logout
+  // So we don't actually clear it here
+  // user.savedCart = null;
+  // user.updatedAt = new Date().toISOString();
+  // saveUser(user);
+  return null;
+}
+

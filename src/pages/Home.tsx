@@ -49,8 +49,9 @@ export default function Home() {
           </div>
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-            gap: 24
+            gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+            gap: 28,
+            alignItems: 'stretch'
           }}>
             {getProductsByCategory('Sets').slice(0, 4).map(p => (
               <ProductCard key={p.id} product={p} />
@@ -69,8 +70,9 @@ export default function Home() {
           </div>
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-            gap: 24
+            gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+            gap: 28,
+            alignItems: 'stretch'
           }}>
             {getProductsByCategory('Onesies').slice(0, 4).map(p => (
               <ProductCard key={p.id} product={p} />
@@ -91,8 +93,9 @@ export default function Home() {
           </div>
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-            gap: 24
+            gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+            gap: 28,
+            alignItems: 'stretch'
           }}>
             {allProducts.slice(0, 6).map(p => (
               <ProductCard key={p.id} product={p} />

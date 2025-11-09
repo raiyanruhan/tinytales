@@ -4,10 +4,12 @@ import { products as fallbackProducts } from '@data/products'
 import ProductCard from '@components/ProductCard'
 import { ShirtIcon } from '@components/Icons'
 import { Product } from '@services/productApi'
+import { useProgress } from '@components/TopProgressBar'
 
 export default function AllProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const { setProgress, completeProgress } = useProgress()
 
   useEffect(() => {
     loadProducts()
@@ -16,14 +18,20 @@ export default function AllProductsPage() {
   const loadProducts = async () => {
     try {
       setLoading(true)
+      setProgress(10)
       const data = await getProducts()
+      setProgress(70)
       setProducts(data)
+      setProgress(90)
     } catch (error) {
       console.error('Failed to load products from API, using fallback:', error)
+      setProgress(50)
       // Fallback to static data if API fails
       setProducts(fallbackProducts as Product[])
+      setProgress(90)
     } finally {
       setLoading(false)
+      completeProgress()
     }
   }
 
@@ -42,7 +50,7 @@ export default function AllProductsPage() {
   return (
     <section style={{ padding: '64px 0', background: 'var(--cream)' }}>
       <div className="container">
-        <div style={{ marginBottom: 48 }}>
+        <div style={{ marginBottom: 48, textAlign: 'center' }}>
           <h1 style={{ 
             fontFamily: "'Barriecito', cursive",
             fontSize: 'clamp(2.5rem, 5vw, 3.5rem)',
@@ -72,8 +80,9 @@ export default function AllProductsPage() {
         ) : (
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-            gap: 24
+            gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+            gap: 28,
+            alignItems: 'stretch'
           }}>
             {products.map(p => (
               <ProductCard key={p.id} product={p} />

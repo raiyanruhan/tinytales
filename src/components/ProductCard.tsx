@@ -3,13 +3,15 @@ import { useState } from 'react'
 import { useCart } from '@context/CartContext'
 import type { Product as DataProduct } from '@data/products'
 import type { Product as ApiProduct } from '@services/productApi'
-import { HeartIcon, HeartOutlineIcon } from './Icons'
+import { HeartIcon, HeartOutlineIcon, TakaIcon } from './Icons'
+import LoadingButton from './LoadingButton'
 
 type Product = DataProduct | ApiProduct;
 
 export default function ProductCard({ product }: { product: Product }) {
-  const [showQuickAdd, setShowQuickAdd] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
+  const [showSizeSelector, setShowSizeSelector] = useState(false)
+  const [selectedSize, setSelectedSize] = useState<string>('')
   const { addItem } = useCart()
 
   // Get image from product - handle both formats
@@ -24,31 +26,66 @@ export default function ProductCard({ product }: { product: Product }) {
     return '';
   }
 
-  const handleQuickAdd = (e: React.MouseEvent) => {
+  const handleAddToCartClick = (e: React.MouseEvent) => {
     e.preventDefault()
-    addItem({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: getProductImage(),
-      size: product.sizes[0]
-    }, 1)
-    setShowQuickAdd(false)
+    e.stopPropagation()
+    if (product.sizes && product.sizes.length > 0) {
+      setShowSizeSelector(true)
+      if (product.sizes.length === 1) {
+        setSelectedSize(product.sizes[0])
+      }
+    }
+  }
+
+  const handleSizeSelect = (size: string) => {
+    setSelectedSize(size)
+  }
+
+  const handleConfirmAdd = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (selectedSize) {
+      // Simulate a small delay for better UX - enough time to see the loader
+      await new Promise(resolve => setTimeout(resolve, 500))
+      addItem({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: getProductImage(),
+        size: selectedSize
+      }, 1)
+      setShowSizeSelector(false)
+      setSelectedSize('')
+    }
+  }
+
+  const handleCancelSizeSelect = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setShowSizeSelector(false)
+    setSelectedSize('')
   }
 
   return (
     <div
-      className="pastel-card"
+      className="pastel-card product-card"
       style={{
         position: 'relative',
         overflow: 'hidden',
-        transition: 'var(--transition)'
+        transition: 'var(--transition)',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%'
       }}
-      onMouseEnter={() => setShowQuickAdd(true)}
-      onMouseLeave={() => setShowQuickAdd(false)}
     >
-      <Link to={`/product/${product.id}`} style={{ display: 'block' }}>
-        <div style={{ position: 'relative', aspectRatio: '4/3', overflow: 'hidden' }}>
+      <Link to={`/product/${product.id}`} style={{ display: 'flex', flexDirection: 'column', flex: '1 1 auto', textDecoration: 'none', color: 'inherit', minHeight: 0 }}>
+        <div style={{ 
+          position: 'relative', 
+          aspectRatio: '4/3', 
+          overflow: 'hidden',
+          backgroundColor: 'var(--paper)',
+          flexShrink: 0
+        }}>
           <img 
             src={getProductImage()} 
             alt={product.name}
@@ -56,10 +93,13 @@ export default function ProductCard({ product }: { product: Product }) {
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              transition: 'transform 0.3s'
+              objectPosition: (product as any).imagePosition 
+                ? `${(product as any).imagePosition.x}% ${(product as any).imagePosition.y}%`
+                : 'center center',
+              transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'scale(1.05)'
+              e.currentTarget.style.transform = 'scale(1.08)'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'scale(1)'
@@ -69,18 +109,20 @@ export default function ProductCard({ product }: { product: Product }) {
           {product.badges && (
             <div style={{
               position: 'absolute',
-              top: 12,
-              left: 12,
+              top: 16,
+              left: 16,
               display: 'flex',
               flexDirection: 'column',
-              gap: 6
+              gap: 8,
+              zIndex: 2
             }}>
               {product.badges.map(badge => (
                 <span
                   key={badge}
                   className={badge === 'Sale' ? 'badge badge-sale' : 'badge'}
                   style={{
-                    background: badge === 'Sale' ? 'var(--coral)' : 'var(--mint)'
+                    background: badge === 'Sale' ? 'var(--coral)' : 'var(--mint)',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)'
                   }}
                 >
                   {badge}
@@ -98,78 +140,225 @@ export default function ProductCard({ product }: { product: Product }) {
             className="btn-3d-small"
             style={{
               position: 'absolute',
-              top: 12,
-              right: 12,
-              width: 44,
-              height: 44,
-              background: 'rgba(255,255,255,0.95)',
-              transform: isFavorite ? 'scale(1.1)' : 'scale(1)'
+              top: 16,
+              right: 16,
+              width: 40,
+              height: 40,
+              background: 'rgba(255, 255, 255, 0.98)',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 2px 12px rgba(0, 0, 0, 0.12)',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              transform: isFavorite ? 'scale(1.1)' : 'scale(1)',
+              zIndex: 2,
+              color: isFavorite ? 'var(--coral)' : 'var(--navy)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = isFavorite ? 'scale(1.15)' : 'scale(1.1)'
+              e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.18)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = isFavorite ? 'scale(1.1)' : 'scale(1)'
+              e.currentTarget.style.boxShadow = '0 2px 12px rgba(0, 0, 0, 0.12)'
             }}
           >
-            {isFavorite ? <HeartIcon size="lg" /> : <HeartOutlineIcon size="lg" />}
+            {isFavorite ? (
+              <HeartIcon size="lg" style={{ color: 'var(--coral)' }} />
+            ) : (
+              <HeartOutlineIcon size="lg" style={{ color: 'var(--navy)', opacity: 0.8 }} />
+            )}
           </button>
         </div>
 
-        <div style={{ padding: 16 }}>
-          <div style={{
-            fontSize: 12,
-            color: 'var(--navy)',
-            marginBottom: 6,
-            fontWeight: 600
-          }}>
-            {product.category}
+        <div style={{ 
+          padding: '20px 20px 12px',
+          display: 'flex',
+          flexDirection: 'column',
+          flex: '1 1 auto',
+          minHeight: 0,
+          gap: 12
+        }}>
+          <div style={{ flex: '1 1 auto', minHeight: 0 }}>
+            <div style={{
+              fontSize: 11,
+              color: 'var(--sky)',
+              marginBottom: 8,
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              {product.category}
+            </div>
+            <h3 style={{
+              fontSize: 15,
+              fontWeight: 700,
+              color: 'var(--ink)',
+              marginBottom: 12,
+              lineHeight: 1.4,
+              wordBreak: 'break-word',
+              overflowWrap: 'break-word',
+              textAlign: 'justify',
+              textAlignLast: 'left',
+              textJustify: 'inter-word',
+              hyphens: 'auto',
+              minHeight: '44px'
+            }}>
+              {product.name}
+            </h3>
           </div>
-          <h3 style={{
-            fontSize: 18,
-            fontWeight: 700,
-            color: 'var(--ink)',
-            marginBottom: 8,
-            lineHeight: 1.3,
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden'
-          }}>
-            {product.name}
-          </h3>
           <div style={{
-            fontSize: 22,
+            fontSize: 20,
             fontWeight: 800,
-            color: 'var(--navy)'
+            color: 'var(--navy)',
+            letterSpacing: '-0.5px',
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
           }}>
-            ${product.price.toFixed(2)}
+            <TakaIcon size="sm" style={{ fontSize: '18px' }} />
+            {product.price.toFixed(2)}
           </div>
         </div>
       </Link>
 
-      {showQuickAdd && (
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            background: 'var(--mint)',
-            padding: 12,
-            transform: 'translateY(0)',
-            transition: 'transform 0.3s',
-            zIndex: 10
-          }}
-        >
+      <div style={{
+        padding: '0 20px 16px',
+        flexShrink: 0,
+        marginTop: 'auto'
+      }}>
+        {!showSizeSelector ? (
           <button
-            onClick={handleQuickAdd}
-            className="btn-3d"
+            onClick={handleAddToCartClick}
             style={{
               width: '100%',
-              background: 'var(--white)',
-              color: 'var(--mint)',
-              fontSize: 16
+              background: 'var(--mint)',
+              color: 'var(--white)',
+              fontSize: 13,
+              fontWeight: 600,
+              padding: '8px 16px',
+              borderRadius: 'var(--radius-sm)',
+              transition: 'all 0.2s ease-out',
+              border: 'none',
+              cursor: 'pointer',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--navy)'
+              e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)'
+              e.currentTarget.style.transform = 'translateY(-1px)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--mint)'
+              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)'
+              e.currentTarget.style.transform = 'translateY(0)'
             }}
           >
-            Quick Add to Cart
+            Add to Cart
           </button>
-        </div>
-      )}
+        ) : (
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px'
+          }}>
+            <div style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: 'var(--navy)',
+              marginBottom: '4px'
+            }}>
+              Select Size
+            </div>
+            <div style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '8px',
+              marginBottom: '4px'
+            }}>
+              {product.sizes && product.sizes.map((size) => (
+                <button
+                  key={size}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    handleSizeSelect(size)
+                  }}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: 'var(--radius-sm)',
+                    border: selectedSize === size ? '2px solid var(--mint)' : '1px solid var(--border-light)',
+                    background: selectedSize === size ? 'var(--mint)' : 'var(--white)',
+                    color: selectedSize === size ? 'var(--white)' : 'var(--navy)',
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease-out',
+                    minWidth: '50px'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (selectedSize !== size) {
+                      e.currentTarget.style.borderColor = 'var(--mint)'
+                      e.currentTarget.style.background = 'var(--cream)'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (selectedSize !== size) {
+                      e.currentTarget.style.borderColor = 'var(--border-light)'
+                      e.currentTarget.style.background = 'var(--white)'
+                    }
+                  }}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+            <div style={{
+              display: 'flex',
+              gap: '8px'
+            }}>
+              <LoadingButton
+                onClick={handleConfirmAdd}
+                disabled={!selectedSize}
+                loadingKey={`add-to-cart-${product.id}`}
+                variant="mint"
+                size="sm"
+                style={{
+                  flex: 1
+                }}
+              >
+                Confirm
+              </LoadingButton>
+              <button
+                onClick={handleCancelSizeSelect}
+                style={{
+                  padding: '8px 16px',
+                  background: 'var(--white)',
+                  color: 'var(--navy)',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--border-light)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease-out'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--cream)'
+                  e.currentTarget.style.borderColor = 'var(--mint)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'var(--white)'
+                  e.currentTarget.style.borderColor = 'var(--border-light)'
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

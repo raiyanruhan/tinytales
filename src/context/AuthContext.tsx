@@ -1,4 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { syncCartOnLogin, clearLocalCart } from '@utils/cartSync';
+import { CartItem } from '@context/CartContext';
 
 interface User {
   id: string;
@@ -9,10 +11,12 @@ interface User {
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (token: string, user: User) => void;
+  login: (token: string, user: User, localCart?: CartItem[]) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
   loading: boolean;
+  cartMergeDecision: { needsDecision: boolean; hasServerCart: boolean; hasLocalCart: boolean } | null;
+  resolveCartMerge: (useLocal: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,6 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [cartMergeDecision, setCartMergeDecision] = useState<{ needsDecision: boolean; hasServerCart: boolean; hasLocalCart: boolean } | null>(null);
 
   useEffect(() => {
     // Check for stored token on mount
@@ -69,16 +74,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const login = (newToken: string, newUser: User) => {
+  const login = async (newToken: string, newUser: User, localCart: CartItem[] = []) => {
     setToken(newToken);
     setUser(newUser);
     localStorage.setItem('authToken', newToken);
     localStorage.setItem('authUser', JSON.stringify(newUser));
+
+    // Sync cart on login
+    if (localCart.length > 0 || newUser) {
+      try {
+        const decision = await syncCartOnLogin(newUser.id, newUser.email, localCart);
+        if (decision.needsDecision) {
+          setCartMergeDecision(decision);
+        } else {
+          // Trigger cart reload if needed
+          window.dispatchEvent(new Event('cartSync'));
+        }
+      } catch (error) {
+        console.error('Error syncing cart on login:', error);
+      }
+    }
+  };
+
+  const resolveCartMerge = (useLocal: boolean) => {
+    setCartMergeDecision(null);
+    // Trigger cart reload
+    window.dispatchEvent(new Event('cartSync'));
   };
 
   const logout = () => {
+    // Clear local cart from browser (server cart persists)
+    clearLocalCart();
+    
     setToken(null);
     setUser(null);
+    setCartMergeDecision(null);
     localStorage.removeItem('authToken');
     localStorage.removeItem('authUser');
   };
@@ -91,7 +121,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         isAuthenticated: !!user && !!token,
-        loading
+        loading,
+        cartMergeDecision,
+        resolveCartMerge
       }}
     >
       {children}

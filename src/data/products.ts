@@ -5,6 +5,11 @@ export type ProductColor = {
   images: string[]
 }
 
+export type ImagePosition = {
+  x: number // Percentage: 0-100
+  y: number // Percentage: 0-100
+}
+
 export type Product = {
   id: string
   name: string
@@ -14,6 +19,7 @@ export type Product = {
   colors: string[] | ProductColor[] // Support both old format (string[]) and new format (ProductColor[])
   sizes: string[]
   image: string
+  imagePosition?: ImagePosition
   badges?: string[]
   stock?: Record<string, number> // Stock per size-color combination
   order?: number // Display order

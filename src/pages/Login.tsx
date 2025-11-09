@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@context/AuthContext';
+import { useCart } from '@context/CartContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
@@ -11,6 +12,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { state: cartState } = useCart();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,8 +45,8 @@ export default function Login() {
         return;
       }
 
-      // Success
-      login(data.token, data.user);
+      // Success - pass cart for sync
+      await login(data.token, data.user, cartState.items);
       navigate('/');
     } catch (err) {
       if (err instanceof TypeError && err.message.includes('fetch')) {

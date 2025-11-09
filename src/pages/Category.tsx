@@ -5,12 +5,14 @@ import { getByCategory, type Category, products as fallbackProducts } from '@dat
 import ProductCard from '@components/ProductCard'
 import { ShirtIcon } from '@components/Icons'
 import { Product } from '@services/productApi'
+import { useProgress } from '@components/TopProgressBar'
 
 export default function CategoryPage() {
   const { cat } = useParams()
   const category = (cat as Category) ?? 'Onesies'
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const { setProgress, completeProgress } = useProgress()
 
   useEffect(() => {
     loadProducts()
@@ -19,16 +21,23 @@ export default function CategoryPage() {
   const loadProducts = async () => {
     try {
       setLoading(true)
+      setProgress(10)
       const data = await getProducts()
+      setProgress(60)
       const categoryProducts = data.filter(p => p.category === category)
+      setProgress(80)
       setProducts(categoryProducts)
+      setProgress(90)
     } catch (error) {
       console.error('Failed to load products from API, using fallback:', error)
+      setProgress(50)
       // Fallback to static data if API fails
       const fallback = getByCategory(category)
       setProducts(fallback as Product[])
+      setProgress(90)
     } finally {
       setLoading(false)
+      completeProgress()
     }
   }
 
@@ -47,7 +56,7 @@ export default function CategoryPage() {
   return (
     <section style={{ padding: '64px 0', background: 'var(--cream)' }}>
       <div className="container">
-        <div style={{ marginBottom: 48 }}>
+        <div style={{ marginBottom: 48, textAlign: 'center' }}>
           <h1 style={{ marginBottom: 12 }}>{category}</h1>
           <p style={{ fontSize: 18, color: 'var(--navy)' }}>
             Discover our {category.toLowerCase()} collection
@@ -70,8 +79,9 @@ export default function CategoryPage() {
         ) : (
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-            gap: 24
+            gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+            gap: 28,
+            alignItems: 'stretch'
           }}>
             {products.map(p => (
               <ProductCard key={p.id} product={p} />

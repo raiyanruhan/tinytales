@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { products } from '@data/products'
+import { TakaIcon } from './Icons'
 
 export default function PromotionalBanner() {
   const [count, setCount] = useState(0)
@@ -103,9 +104,14 @@ export default function PromotionalBanner() {
                   <div style={{
                     fontSize: 18,
                     fontWeight: 700,
-                    color: 'var(--coral)'
+                    color: 'var(--coral)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '4px'
                   }}>
-                    ${product.price.toFixed(2)}
+                    <TakaIcon size="sm" style={{ fontSize: '16px' }} />
+                    {product.price.toFixed(2)}
                   </div>
                 </div>
               </Link>

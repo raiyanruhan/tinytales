@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Category, categories } from '@data/products';
 import ImageUpload from './ImageUpload';
-import { Product } from '@services/productApi';
+import ImagePositionEditor from './ImagePositionEditor';
+import { Product, ImagePosition } from '@services/productApi';
 
 interface ProductFormProps {
   product?: Product;
@@ -32,6 +33,9 @@ export default function ProductForm({ product, onSubmit, onCancel }: ProductForm
   const [order, setOrder] = useState(product?.order?.toString() || '');
   const [badges, setBadges] = useState<string[]>(product?.badges || []);
   const [image, setImage] = useState(product?.image || '');
+  const [imagePosition, setImagePosition] = useState<ImagePosition>(
+    product?.imagePosition || { x: 50, y: 50 }
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -140,6 +144,7 @@ export default function ProductForm({ product, onSubmit, onCancel }: ProductForm
         colors: colors.map(c => ({ name: c.name.trim(), images: c.images })),
         stock,
         image: image || colors[0]?.images?.[0] || '',
+        imagePosition,
         badges: badges.filter(Boolean),
         ...(order && { order: parseInt(order) || undefined })
       };
@@ -171,11 +176,21 @@ export default function ProductForm({ product, onSubmit, onCancel }: ProductForm
         <h2 style={{ marginBottom: '1.5rem', color: 'var(--navy)' }}>Basic Information</h2>
         
         <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Product Name *</label>
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>
+            Product Name * 
+            <span style={{ fontSize: '0.875rem', fontWeight: 400, color: 'var(--navy)', opacity: 0.7, marginLeft: '0.5rem' }}>
+              (Max 60 characters - {name.length}/60)
+            </span>
+          </label>
           <input
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              if (e.target.value.length <= 60) {
+                setName(e.target.value)
+              }
+            }}
+            maxLength={60}
             required
             style={{
               width: '100%',
@@ -184,6 +199,11 @@ export default function ProductForm({ product, onSubmit, onCancel }: ProductForm
               borderRadius: 'var(--radius-sm)'
             }}
           />
+          {name.length >= 55 && (
+            <div style={{ fontSize: '0.875rem', color: 'var(--coral)', marginTop: '0.25rem' }}>
+              Product name is getting long. Consider a shorter name for better display.
+            </div>
+          )}
         </div>
 
         <div style={{ marginBottom: '1rem' }}>
@@ -464,19 +484,31 @@ export default function ProductForm({ product, onSubmit, onCancel }: ProductForm
 
       {/* Main Image */}
       <div style={{ marginBottom: '2rem' }}>
-        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Main Image URL</label>
-        <input
-          type="url"
-          value={image}
-          onChange={(e) => setImage(e.target.value)}
-          placeholder="Main product image (or first color's first image will be used)"
-          style={{
-            width: '100%',
-            padding: '0.75rem',
-            border: '1px solid var(--border-light)',
-            borderRadius: 'var(--radius-sm)'
-          }}
-        />
+        <h2 style={{ marginBottom: '1rem', color: 'var(--navy)' }}>Main Image</h2>
+        <div style={{ marginBottom: '1rem' }}>
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Main Image URL</label>
+          <input
+            type="url"
+            value={image}
+            onChange={(e) => setImage(e.target.value)}
+            placeholder="Main product image (or first color's first image will be used)"
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              border: '1px solid var(--border-light)',
+              borderRadius: 'var(--radius-sm)'
+            }}
+          />
+        </div>
+        
+        {image && (
+          <ImagePositionEditor
+            imageUrl={image}
+            position={imagePosition}
+            onChange={setImagePosition}
+            aspectRatio="4/3"
+          />
+        )}
       </div>
 
       {/* Actions */}

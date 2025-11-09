@@ -7,6 +7,11 @@ export interface ProductColor {
   images: string[];
 }
 
+export interface ImagePosition {
+  x: number; // Percentage: 0-100
+  y: number; // Percentage: 0-100
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -19,6 +24,7 @@ export interface Product {
   order?: number;
   badges?: string[];
   image: string;
+  imagePosition?: ImagePosition;
   createdAt?: string;
   updatedAt?: string;
 }

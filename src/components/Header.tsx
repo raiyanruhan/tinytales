@@ -174,6 +174,32 @@ export default function Header() {
                 }}>
                   {user?.email}
                 </div>
+                <Link
+                  to="/account"
+                  onClick={() => setShowMenu(false)}
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    padding: '0.75rem 1rem',
+                    background: 'none',
+                    border: 'none',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    color: 'var(--navy)',
+                    fontSize: '0.9rem',
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                    transition: 'var(--transition-fast)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'var(--cream)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'none'
+                  }}
+                >
+                  My Account
+                </Link>
                 <button
                   onClick={handleLogout}
                   style={{

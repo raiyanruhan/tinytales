@@ -17,14 +17,542 @@
       "0-3m"
     ],
     "stock": {
-      "0-3m-Green": 100
+      "0-3m-Green": 990
     },
-    "order": 1,
+    "order": 2,
     "badges": [
-      "New"
+      "Limited"
     ],
     "image": "https://mcprod.aarong.com/media/catalog/product/0/2/0270000017226.jpg?optimize=high&bg-color=255,255,255&fit=bounds&height=&width=",
     "createdAt": "2025-11-08T14:35:25.067Z",
-    "updatedAt": "2025-11-08T14:35:31.146Z"
+    "updatedAt": "2025-11-09T09:29:10.920Z",
+    "imagePosition": {
+      "x": 97.594499096428,
+      "y": 13.9
+    }
+  },
+  {
+    "id": "abcp-1762665914908",
+    "name": "ABCP",
+    "price": 123,
+    "category": "Newborn",
+    "description": "hello",
+    "colors": [
+      {
+        "name": "Blue",
+        "images": [
+          "/uploads/product-1762665870475-664841841.jpg"
+        ]
+      }
+    ],
+    "sizes": [
+      "0-3m",
+      "23.4m"
+    ],
+    "stock": {
+      "0-3m-Blue": 95,
+      "23.4m-Blue": 2
+    },
+    "order": 1,
+    "badges": [
+      "Popular"
+    ],
+    "image": "http://localhost:3001/uploads/product-1762665870475-664841841.jpg",
+    "createdAt": "2025-11-09T05:25:14.909Z",
+    "updatedAt": "2025-11-09T09:29:10.922Z"
+  },
+  {
+    "id": "hylith-1762672517840",
+    "name": "Hylith",
+    "price": 1.99,
+    "category": "Newborn",
+    "description": "Brand",
+    "colors": [
+      {
+        "name": "Blue",
+        "images": [
+          "/uploads/product-1762672379835-587255505.jpg"
+        ]
+      },
+      {
+        "name": "White",
+        "images": [
+          "/uploads/product-1762672446195-7460174.jpg"
+        ]
+      },
+      {
+        "name": "Baby",
+        "images": [
+          "/uploads/product-1762672465983-571238878.png"
+        ]
+      }
+    ],
+    "sizes": [
+      "Default"
+    ],
+    "stock": {
+      "Default-Blue": 996
+    },
+    "order": 1,
+    "badges": [
+      "Popular"
+    ],
+    "image": "http://localhost:3001/uploads/product-1762672465983-571238878.png",
+    "imagePosition": {
+      "x": 32.90377744694346,
+      "y": 74.76374570446735
+    },
+    "createdAt": "2025-11-09T07:15:17.840Z",
+    "updatedAt": "2025-11-09T10:21:36.162Z"
+  },
+  {
+    "id": "green-panjabi-1762679944721",
+    "name": "Green Panjabi",
+    "price": 1200,
+    "category": "Newborn",
+    "description": "Beautiful green panjabi",
+    "colors": [
+      {
+        "name": "Green",
+        "images": [
+          "http://localhost:3001/uploads/product-1762665870475-664841841.jpg"
+        ]
+      }
+    ],
+    "sizes": [
+      "0-3m"
+    ],
+    "stock": {
+      "0-3m": 10,
+      "0-3m-Green": 9
+    },
+    "badges": [
+      "Popular"
+    ],
+    "image": "http://localhost:3001/uploads/product-1762665870475-664841841.jpg",
+    "createdAt": "2025-11-09T09:19:04.721Z",
+    "updatedAt": "2025-11-09T10:21:36.163Z"
+  },
+  {
+    "id": "blue-onesie-1762679944730",
+    "name": "Blue Onesie",
+    "price": 800,
+    "category": "Onesies",
+    "description": "Comfortable blue onesie",
+    "colors": [
+      {
+        "name": "Blue",
+        "images": [
+          "http://localhost:3001/uploads/product-1762672465983-571238878.png"
+        ]
+      }
+    ],
+    "sizes": [
+      "3-6m",
+      "6-9m"
+    ],
+    "stock": {
+      "3-6m": 20,
+      "6-9m": 20
+    },
+    "badges": [
+      "New"
+    ],
+    "image": "http://localhost:3001/uploads/product-1762672465983-571238878.png",
+    "createdAt": "2025-11-09T09:19:04.730Z",
+    "updatedAt": "2025-11-09T09:19:04.730Z"
+  },
+  {
+    "id": "green-panjabi-1762679944736",
+    "name": "Green Panjabi",
+    "price": 400,
+    "category": "Newborn",
+    "description": "Beautiful green panjabi",
+    "colors": [
+      {
+        "name": "Green",
+        "images": [
+          "http://localhost:3001/uploads/product-1762672446195-7460174.jpg"
+        ]
+      }
+    ],
+    "sizes": [
+      "0-3m"
+    ],
+    "stock": {
+      "0-3m": 30
+    },
+    "badges": [
+      "Popular"
+    ],
+    "image": "http://localhost:3001/uploads/product-1762672446195-7460174.jpg",
+    "createdAt": "2025-11-09T09:19:04.736Z",
+    "updatedAt": "2025-11-09T09:19:04.736Z"
+  },
+  {
+    "id": "blue-onesie-1762679944743",
+    "name": "Blue Onesie",
+    "price": 400,
+    "category": "Onesies",
+    "description": "Comfortable blue onesie",
+    "colors": [
+      {
+        "name": "Blue",
+        "images": [
+          "http://localhost:3001/uploads/product-1762665870475-664841841.jpg"
+        ]
+      }
+    ],
+    "sizes": [
+      "3-6m",
+      "6-9m"
+    ],
+    "stock": {
+      "3-6m": 40,
+      "6-9m": 40
+    },
+    "badges": [
+      "New"
+    ],
+    "image": "http://localhost:3001/uploads/product-1762665870475-664841841.jpg",
+    "createdAt": "2025-11-09T09:19:04.743Z",
+    "updatedAt": "2025-11-09T09:19:04.743Z"
+  },
+  {
+    "id": "green-panjabi-1762679944750",
+    "name": "Green Panjabi",
+    "price": 400,
+    "category": "Newborn",
+    "description": "Beautiful green panjabi",
+    "colors": [
+      {
+        "name": "Green",
+        "images": [
+          "http://localhost:3001/uploads/product-1762672465983-571238878.png"
+        ]
+      }
+    ],
+    "sizes": [
+      "0-3m"
+    ],
+    "stock": {
+      "0-3m": 50
+    },
+    "badges": [
+      "Popular"
+    ],
+    "image": "http://localhost:3001/uploads/product-1762672465983-571238878.png",
+    "createdAt": "2025-11-09T09:19:04.750Z",
+    "updatedAt": "2025-11-09T09:19:04.750Z"
+  },
+  {
+    "id": "blue-onesie-1762679944756",
+    "name": "Blue Onesie",
+    "price": 400,
+    "category": "Onesies",
+    "description": "Comfortable blue onesie",
+    "colors": [
+      {
+        "name": "Blue",
+        "images": [
+          "http://localhost:3001/uploads/product-1762672446195-7460174.jpg"
+        ]
+      }
+    ],
+    "sizes": [
+      "3-6m",
+      "6-9m"
+    ],
+    "stock": {
+      "3-6m": 60,
+      "6-9m": 60
+    },
+    "badges": [
+      "New"
+    ],
+    "image": "http://localhost:3001/uploads/product-1762672446195-7460174.jpg",
+    "createdAt": "2025-11-09T09:19:04.756Z",
+    "updatedAt": "2025-11-09T09:19:04.756Z"
+  },
+  {
+    "id": "green-panjabi-1762679944762",
+    "name": "Green Panjabi",
+    "price": 400,
+    "category": "Newborn",
+    "description": "Beautiful green panjabi",
+    "colors": [
+      {
+        "name": "Green",
+        "images": [
+          "http://localhost:3001/uploads/product-1762665870475-664841841.jpg"
+        ]
+      }
+    ],
+    "sizes": [
+      "0-3m"
+    ],
+    "stock": {
+      "0-3m": 70,
+      "0-3m-Green": 69
+    },
+    "badges": [
+      "Popular"
+    ],
+    "image": "http://localhost:3001/uploads/product-1762665870475-664841841.jpg",
+    "createdAt": "2025-11-09T09:19:04.762Z",
+    "updatedAt": "2025-11-09T10:31:09.888Z"
+  },
+  {
+    "id": "blue-onesie-1762679944769",
+    "name": "Blue Onesie",
+    "price": 400,
+    "category": "Onesies",
+    "description": "Comfortable blue onesie",
+    "colors": [
+      {
+        "name": "Blue",
+        "images": [
+          "http://localhost:3001/uploads/product-1762672465983-571238878.png"
+        ]
+      }
+    ],
+    "sizes": [
+      "3-6m",
+      "6-9m"
+    ],
+    "stock": {
+      "3-6m": 80,
+      "6-9m": 80
+    },
+    "badges": [
+      "New"
+    ],
+    "image": "http://localhost:3001/uploads/product-1762672465983-571238878.png",
+    "createdAt": "2025-11-09T09:19:04.769Z",
+    "updatedAt": "2025-11-09T09:19:04.769Z"
+  },
+  {
+    "id": "green-panjabi-1762679944774",
+    "name": "Green Panjabi",
+    "price": 400,
+    "category": "Newborn",
+    "description": "Beautiful green panjabi",
+    "colors": [
+      {
+        "name": "Green",
+        "images": [
+          "http://localhost:3001/uploads/product-1762672446195-7460174.jpg"
+        ]
+      }
+    ],
+    "sizes": [
+      "0-3m"
+    ],
+    "stock": {
+      "0-3m": 90
+    },
+    "badges": [
+      "Popular"
+    ],
+    "image": "http://localhost:3001/uploads/product-1762672446195-7460174.jpg",
+    "createdAt": "2025-11-09T09:19:04.775Z",
+    "updatedAt": "2025-11-09T09:19:04.775Z"
+  },
+  {
+    "id": "blue-onesie-1762679944782",
+    "name": "Blue Onesie",
+    "price": 400,
+    "category": "Onesies",
+    "description": "Comfortable blue onesie",
+    "colors": [
+      {
+        "name": "Blue",
+        "images": [
+          "http://localhost:3001/uploads/product-1762665870475-664841841.jpg"
+        ]
+      }
+    ],
+    "sizes": [
+      "3-6m",
+      "6-9m"
+    ],
+    "stock": {
+      "3-6m": 100,
+      "6-9m": 100
+    },
+    "badges": [
+      "New"
+    ],
+    "image": "http://localhost:3001/uploads/product-1762665870475-664841841.jpg",
+    "createdAt": "2025-11-09T09:19:04.782Z",
+    "updatedAt": "2025-11-09T09:19:04.782Z"
+  },
+  {
+    "id": "green-panjabi-1762679944788",
+    "name": "Green Panjabi",
+    "price": 400,
+    "category": "Newborn",
+    "description": "Beautiful green panjabi",
+    "colors": [
+      {
+        "name": "Green",
+        "images": [
+          "http://localhost:3001/uploads/product-1762672465983-571238878.png"
+        ]
+      }
+    ],
+    "sizes": [
+      "0-3m"
+    ],
+    "stock": {
+      "0-3m": 110
+    },
+    "badges": [
+      "Popular"
+    ],
+    "image": "http://localhost:3001/uploads/product-1762672465983-571238878.png",
+    "createdAt": "2025-11-09T09:19:04.788Z",
+    "updatedAt": "2025-11-09T09:19:04.788Z"
+  },
+  {
+    "id": "blue-onesie-1762679944794",
+    "name": "Blue Onesie",
+    "price": 400,
+    "category": "Onesies",
+    "description": "Comfortable blue onesie",
+    "colors": [
+      {
+        "name": "Blue",
+        "images": [
+          "http://localhost:3001/uploads/product-1762672446195-7460174.jpg"
+        ]
+      }
+    ],
+    "sizes": [
+      "3-6m",
+      "6-9m"
+    ],
+    "stock": {
+      "3-6m": 120,
+      "6-9m": 120
+    },
+    "badges": [
+      "New"
+    ],
+    "image": "http://localhost:3001/uploads/product-1762672446195-7460174.jpg",
+    "createdAt": "2025-11-09T09:19:04.794Z",
+    "updatedAt": "2025-11-09T09:19:04.794Z"
+  },
+  {
+    "id": "green-panjabi-1762679944800",
+    "name": "Green Panjabi",
+    "price": 400,
+    "category": "Newborn",
+    "description": "Beautiful green panjabi",
+    "colors": [
+      {
+        "name": "Green",
+        "images": [
+          "http://localhost:3001/uploads/product-1762665870475-664841841.jpg"
+        ]
+      }
+    ],
+    "sizes": [
+      "0-3m"
+    ],
+    "stock": {
+      "0-3m": 130
+    },
+    "badges": [
+      "Popular"
+    ],
+    "image": "http://localhost:3001/uploads/product-1762665870475-664841841.jpg",
+    "createdAt": "2025-11-09T09:19:04.800Z",
+    "updatedAt": "2025-11-09T09:19:04.800Z"
+  },
+  {
+    "id": "blue-onesie-1762679944806",
+    "name": "Blue Onesie",
+    "price": 400,
+    "category": "Onesies",
+    "description": "Comfortable blue onesie",
+    "colors": [
+      {
+        "name": "Blue",
+        "images": [
+          "http://localhost:3001/uploads/product-1762672465983-571238878.png"
+        ]
+      }
+    ],
+    "sizes": [
+      "3-6m",
+      "6-9m"
+    ],
+    "stock": {
+      "3-6m": 140,
+      "6-9m": 140
+    },
+    "badges": [
+      "New"
+    ],
+    "image": "http://localhost:3001/uploads/product-1762672465983-571238878.png",
+    "createdAt": "2025-11-09T09:19:04.806Z",
+    "updatedAt": "2025-11-09T09:19:04.806Z"
+  },
+  {
+    "id": "green-panjabi-1762679944814",
+    "name": "Green Panjabi",
+    "price": 400,
+    "category": "Newborn",
+    "description": "Beautiful green panjabi",
+    "colors": [
+      {
+        "name": "Green",
+        "images": [
+          "http://localhost:3001/uploads/product-1762672446195-7460174.jpg"
+        ]
+      }
+    ],
+    "sizes": [
+      "0-3m"
+    ],
+    "stock": {
+      "0-3m": 150
+    },
+    "badges": [
+      "Popular"
+    ],
+    "image": "http://localhost:3001/uploads/product-1762672446195-7460174.jpg",
+    "createdAt": "2025-11-09T09:19:04.814Z",
+    "updatedAt": "2025-11-09T09:19:04.814Z"
+  },
+  {
+    "id": "blue-onesie-1762679944820",
+    "name": "Blue Onesie",
+    "price": 400,
+    "category": "Onesies",
+    "description": "Comfortable blue onesie",
+    "colors": [
+      {
+        "name": "Blue",
+        "images": [
+          "http://localhost:3001/uploads/product-1762665870475-664841841.jpg"
+        ]
+      }
+    ],
+    "sizes": [
+      "3-6m",
+      "6-9m"
+    ],
+    "stock": {
+      "3-6m": 160,
+      "6-9m": 160
+    },
+    "badges": [
+      "New"
+    ],
+    "image": "http://localhost:3001/uploads/product-1762665870475-664841841.jpg",
+    "createdAt": "2025-11-09T09:19:04.821Z",
+    "updatedAt": "2025-11-09T09:19:04.821Z"
   }
 ]

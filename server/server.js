@@ -4,6 +4,9 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
 import productRoutes from './routes/products.js';
 import uploadRoutes from './routes/upload.js';
+import orderRoutes from './routes/orders.js';
+import locationRoutes from './routes/locations.js';
+import userRoutes from './routes/users.js';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -31,6 +34,9 @@ app.use('/uploads', express.static(join(__dirname, 'uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/locations', locationRoutes);
+app.use('/api/users', userRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -1,8 +1,16 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Header from '@components/Header'
 import { CartProvider } from '@context/CartContext'
-import { AuthProvider } from '@context/AuthContext'
+import { AuthProvider, useAuth } from '@context/AuthContext'
+import { LoadingProvider } from '@context/LoadingContext'
+import { ModalProvider } from '@context/ModalContext'
 import AdminRoute from '@components/AdminRoute'
+import ProtectedRoute from '@components/ProtectedRoute'
+import CartMergeDialog from '@components/CartMergeDialog'
+import TopProgressBar from '@components/TopProgressBar'
+import { useCart } from '@context/CartContext'
+import { getSavedCart, saveCartToServer, CartItem } from '@services/cartApi'
+import { useState, useEffect } from 'react'
 import Home from '@pages/Home'
 import CategoryPage from '@pages/Category'
 import AllProducts from '@pages/AllProducts'
@@ -13,12 +21,57 @@ import Login from '@pages/Login'
 import Signup from '@pages/Signup'
 import EmailVerification from '@pages/EmailVerification'
 import Dashboard from '@pages/Dashboard'
+import Account from '@pages/Account'
+import OrderDetailPage from '@pages/OrderDetail'
 import NotFound from '@pages/NotFound'
 
-export default function App() {
+function AppContent() {
+  const { cartMergeDecision, resolveCartMerge, user } = useAuth();
+  const { state: cartState, setItems } = useCart();
+  const [serverCart, setServerCart] = useState<CartItem[]>([]);
+  const [loadingMerge, setLoadingMerge] = useState(false);
+
+  useEffect(() => {
+    if (cartMergeDecision?.needsDecision && user) {
+      loadServerCart();
+    }
+  }, [cartMergeDecision, user]);
+
+  const loadServerCart = async () => {
+    if (!user) return;
+    try {
+      const cart = await getSavedCart(user.id);
+      if (cart) {
+        setServerCart(cart);
+      }
+    } catch (error) {
+      console.error('Error loading server cart:', error);
+    }
+  };
+
+  const handleCartChoice = async (useLocal: boolean) => {
+    setLoadingMerge(true);
+    try {
+      if (useLocal) {
+        // Use local cart - save to server
+        if (user && cartState.items.length > 0) {
+          await saveCartToServer(user.id, cartState.items);
+        }
+      } else {
+        // Use server cart - replace local
+        setItems(serverCart);
+      }
+      resolveCartMerge(useLocal);
+    } catch (error) {
+      console.error('Error merging cart:', error);
+    } finally {
+      setLoadingMerge(false);
+    }
+  };
+
   return (
-    <AuthProvider>
-      <CartProvider>
+    <>
+      <TopProgressBar>
         <Header />
         <main style={{ paddingTop: '80px' }}>
           <Routes>
@@ -32,10 +85,24 @@ export default function App() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/verify-email" element={<EmailVerification />} />
             <Route path="/dashboard" element={<AdminRoute><Dashboard /></AdminRoute>} />
+              <Route path="/account" element={
+                <ProtectedRoute>
+                  <Account />
+                </ProtectedRoute>
+              } />
+            <Route path="/order/:id" element={<OrderDetailPage />} />
             <Route path="/home" element={<Navigate to="/" replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
+      </TopProgressBar>
+      {cartMergeDecision?.needsDecision && (
+        <CartMergeDialog
+          localCart={cartState.items}
+          serverCart={serverCart}
+          onChoose={handleCartChoice}
+        />
+      )}
       <footer style={{
         background: 'var(--navy)',
         color: '#fff',
@@ -115,7 +182,20 @@ export default function App() {
           </div>
         </div>
       </footer>
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <CartProvider>
+        <LoadingProvider>
+          <ModalProvider>
+            <AppContent />
+          </ModalProvider>
+        </LoadingProvider>
       </CartProvider>
     </AuthProvider>
-  )
+  );
 }

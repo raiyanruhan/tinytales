@@ -42,7 +42,8 @@ router.post('/', adminAuth, (req, res) => {
       stock,
       order,
       badges,
-      image
+      image,
+      imagePosition
     } = req.body;
 
     // Validation
@@ -75,7 +76,8 @@ router.post('/', adminAuth, (req, res) => {
       stock: stock || {},
       order: order ? parseInt(order) : undefined,
       badges: badges || [],
-      image: image || (colors[0]?.images?.[0] || '')
+      image: image || (colors[0]?.images?.[0] || ''),
+      ...(imagePosition && { imagePosition })
     };
 
     const product = saveProduct(productData);
@@ -104,7 +106,8 @@ router.put('/:id', adminAuth, (req, res) => {
       stock,
       order,
       badges,
-      image
+      image,
+      imagePosition
     } = req.body;
 
     const updateData = {
@@ -122,7 +125,8 @@ router.put('/:id', adminAuth, (req, res) => {
       ...(stock !== undefined && { stock }),
       ...(order !== undefined && { order: parseInt(order) }),
       ...(badges !== undefined && { badges }),
-      ...(image && { image })
+      ...(image && { image }),
+      ...(imagePosition !== undefined && { imagePosition })
     };
 
     const updatedProduct = saveProduct(updateData);

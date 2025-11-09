@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@context/AuthContext';
+import { useCart } from '@context/CartContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
@@ -12,6 +13,7 @@ export default function EmailVerification() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
+  const { state: cartState } = useCart();
 
   const userId = location.state?.userId;
   const email = location.state?.email || '';
@@ -82,8 +84,8 @@ export default function EmailVerification() {
         return;
       }
 
-      // Success - login and redirect
-      login(data.token, data.user);
+      // Success - login and redirect (pass cart for sync)
+      await login(data.token, data.user, cartState.items);
       navigate('/');
     } catch (err) {
       if (err instanceof TypeError && err.message.includes('fetch')) {

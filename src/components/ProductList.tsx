@@ -17,6 +17,8 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Product } from '@services/productApi';
+import { TakaIcon } from './Icons';
+import { useModal } from '@context/ModalContext';
 
 interface ProductListProps {
   products: Product[];
@@ -39,6 +41,7 @@ function SortableProductItem({
 }) {
   const [orderValue, setOrderValue] = useState(product.order?.toString() || '');
   const [isDeleting, setIsDeleting] = useState(false);
+  const { showConfirm } = useModal();
 
   const {
     attributes,
@@ -62,14 +65,20 @@ function SortableProductItem({
   };
 
   const handleDelete = async () => {
-    if (window.confirm(`Are you sure you want to delete "${product.name}"?`)) {
-      setIsDeleting(true);
-      try {
-        await onDelete(product.id);
-      } finally {
-        setIsDeleting(false);
+    showConfirm({
+      title: 'Delete Product',
+      message: `Are you sure you want to delete "${product.name}"?`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      onConfirm: async () => {
+        setIsDeleting(true);
+        try {
+          await onDelete(product.id);
+        } finally {
+          setIsDeleting(false);
+        }
       }
-    }
+    });
   };
 
   const getTotalStock = () => {
@@ -135,9 +144,12 @@ function SortableProductItem({
         <h3 style={{ margin: 0, marginBottom: '0.25rem', fontSize: '1.1rem', color: 'var(--navy)' }}>
           {product.name}
         </h3>
-        <div style={{ display: 'flex', gap: '1rem', fontSize: '0.9rem', color: 'var(--navy)', opacity: 0.8 }}>
+        <div style={{ display: 'flex', gap: '1rem', fontSize: '0.9rem', color: 'var(--navy)', opacity: 0.8, alignItems: 'center' }}>
           <span>{product.category}</span>
-          <span>${product.price.toFixed(2)}</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+            <TakaIcon size="xs" style={{ fontSize: '0.8rem' }} />
+            {product.price.toFixed(2)}
+          </span>
           <span>Stock: {getTotalStock()}</span>
         </div>
       </div>

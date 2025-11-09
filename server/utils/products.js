@@ -111,4 +111,144 @@ export function reorderProducts(productsWithOrder) {
   return getAllProducts();
 }
 
+// Decrease stock for a product
+export function decreaseStock(productId, size, color, quantity) {
+  const products = readProducts();
+  const product = products.find(p => p.id === productId);
+  
+  if (!product) {
+    throw new Error('Product not found');
+  }
+  
+  if (!product.stock) {
+    product.stock = {};
+  }
+  
+  // If color is 'default' or not provided, use the first available color
+  let actualColor = color;
+  if (!actualColor || actualColor === 'default') {
+    if (product.colors && Array.isArray(product.colors) && product.colors.length > 0) {
+      const firstColor = product.colors[0];
+      actualColor = typeof firstColor === 'object' && firstColor.name ? firstColor.name : firstColor;
+    } else {
+      actualColor = 'default';
+    }
+  }
+  
+  const stockKey = `${size}-${actualColor}`;
+  let currentStock = product.stock[stockKey];
+  
+  // If stock key not found, try alternative formats or use size-only key as fallback
+  if (currentStock === undefined) {
+    // Try size-only key (for backward compatibility with old products)
+    currentStock = product.stock[size];
+    
+    // If still not found and stock object exists but is empty, initialize with high default
+    // This handles cases where stock wasn't properly initialized
+    if (currentStock === undefined && Object.keys(product.stock).length === 0) {
+      // No stock data at all - initialize with high default to allow order processing
+      console.warn(`No stock data for product ${productId}, size ${size}, color ${actualColor}. Initializing with default stock.`);
+      currentStock = 999; // Set high default to allow order processing
+      product.stock[stockKey] = currentStock;
+    } else {
+      // Default to 0 if still undefined
+      currentStock = currentStock || 0;
+    }
+  }
+  
+  if (currentStock < quantity) {
+    throw new Error(`Insufficient stock. Available: ${currentStock}, Requested: ${quantity}`);
+  }
+  
+  product.stock[stockKey] = currentStock - quantity;
+  product.updatedAt = new Date().toISOString();
+  
+  writeProducts(products);
+  return product;
+}
+
+// Increase stock for a product (for restoring when order cancelled)
+export function increaseStock(productId, size, color, quantity) {
+  const products = readProducts();
+  const product = products.find(p => p.id === productId);
+  
+  if (!product) {
+    throw new Error('Product not found');
+  }
+  
+  if (!product.stock) {
+    product.stock = {};
+  }
+  
+  // If color is 'default' or not provided, use the first available color
+  let actualColor = color;
+  if (!actualColor || actualColor === 'default') {
+    if (product.colors && Array.isArray(product.colors) && product.colors.length > 0) {
+      const firstColor = product.colors[0];
+      actualColor = typeof firstColor === 'object' && firstColor.name ? firstColor.name : firstColor;
+    } else {
+      actualColor = 'default';
+    }
+  }
+  
+  const stockKey = `${size}-${actualColor}`;
+  const currentStock = product.stock[stockKey] || 0;
+  product.stock[stockKey] = currentStock + quantity;
+  product.updatedAt = new Date().toISOString();
+  
+  writeProducts(products);
+  return product;
+}
+
+// Check stock availability
+export function checkStock(productId, size, color, quantity) {
+  const product = getProductById(productId);
+  
+  if (!product) {
+    return { available: false, message: 'Product not found' };
+  }
+  
+  if (!product.stock) {
+    return { available: false, message: 'Stock information not available' };
+  }
+  
+  // If color is 'default' or not provided, use the first available color
+  let actualColor = color;
+  if (!actualColor || actualColor === 'default') {
+    if (product.colors && Array.isArray(product.colors) && product.colors.length > 0) {
+      // Handle both old format (string[]) and new format (ProductColor[])
+      const firstColor = product.colors[0];
+      actualColor = typeof firstColor === 'object' && firstColor.name ? firstColor.name : firstColor;
+    } else {
+      actualColor = 'default';
+    }
+  }
+  
+  const stockKey = `${size}-${actualColor}`;
+  let currentStock = product.stock[stockKey];
+  
+  // If stock key not found, try alternative formats or use size-only key as fallback
+  if (currentStock === undefined) {
+    // Try size-only key (for backward compatibility with old products)
+    currentStock = product.stock[size];
+    
+    // If still not found and stock object exists but is empty or has no matching keys
+    // This handles cases where stock wasn't properly initialized
+    if (currentStock === undefined && Object.keys(product.stock).length === 0) {
+      // No stock data at all - allow order but log warning
+      console.warn(`No stock data for product ${productId}, size ${size}, color ${actualColor}. Allowing order.`);
+      return { available: true, availableStock: 999 }; // Set high default to allow order
+    }
+    
+    // Default to 0 if still undefined
+    currentStock = currentStock || 0;
+  }
+  
+  if (currentStock < quantity) {
+    return { available: false, message: `Insufficient stock. Available: ${currentStock}, Requested: ${quantity}`, availableStock: currentStock };
+  }
+  
+  return { available: true, availableStock: currentStock };
+}
+
 

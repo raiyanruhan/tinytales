@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useCart } from '@context/CartContext'
-import { CartIcon } from '@components/Icons'
+import { CartIcon, TakaIcon } from '@components/Icons'
 
 export default function CartPage() {
   const { state, removeItem, setQuantity, totalPrice, clear } = useCart()
@@ -135,14 +135,21 @@ export default function CartPage() {
                         color: 'var(--navy)',
                         marginBottom: 8
                       }}>
-                        ${(item.price * item.quantity).toFixed(2)}
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                          <TakaIcon size="xs" style={{ fontSize: '14px' }} />
+                          {(item.price * item.quantity).toFixed(2)}
+                        </span>
                       </div>
                       <div style={{
                         fontSize: 14,
                         color: 'var(--navy)',
-                        opacity: 0.7
+                        opacity: 0.7,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '2px'
                       }}>
-                        ${item.price.toFixed(2)} each
+                        <TakaIcon size="xs" style={{ fontSize: '12px' }} />
+                        {item.price.toFixed(2)} each
                       </div>
                     </div>
                   </div>
@@ -161,7 +168,10 @@ export default function CartPage() {
                   color: 'var(--navy)'
                 }}>
                   <span>Subtotal</span>
-                  <span>${totalPrice.toFixed(2)}</span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                    <TakaIcon size="xs" style={{ fontSize: '14px' }} />
+                    {totalPrice.toFixed(2)}
+                  </span>
                 </div>
                 
                 <div style={{
@@ -171,7 +181,12 @@ export default function CartPage() {
                   color: 'var(--navy)'
                 }}>
                   <span>Shipping</span>
-                  <span>{totalPrice > 50 ? 'Free' : '$5.99'}</span>
+                  <span>{totalPrice > 50 ? 'Free' : (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                      <TakaIcon size="xs" style={{ fontSize: '14px' }} />
+                      5.99
+                    </span>
+                  )}</span>
                 </div>
 
                 <div style={{
@@ -188,7 +203,10 @@ export default function CartPage() {
                     color: 'var(--navy)'
                   }}>
                     <span>Total</span>
-                    <span>${(totalPrice + (totalPrice > 50 ? 0 : 5.99)).toFixed(2)}</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <TakaIcon size="sm" style={{ fontSize: '18px' }} />
+                      {(totalPrice + (totalPrice > 50 ? 0 : 5.99)).toFixed(2)}
+                    </span>
                   </div>
                 </div>
 
@@ -215,7 +233,7 @@ export default function CartPage() {
                     color: 'var(--ink)',
                     fontWeight: 600
                   }}>
-                    Add ${(50 - totalPrice).toFixed(2)} more for free shipping!
+                    Add <span style={{ display: 'inline-flex', alignItems: 'center', gap: '2px' }}><TakaIcon size="xs" style={{ fontSize: '12px' }} />{(50 - totalPrice).toFixed(2)}</span> more for free shipping!
                   </div>
                 )}
               </div>

@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useMemo, useReducer } from 'react'
+import React, { createContext, useContext, useMemo, useReducer, useEffect } from 'react'
+import { saveCartToServer, loadCartFromServer } from '@services/cartApi'
 
 export type CartItem = {
   id: string
@@ -18,6 +19,7 @@ type CartAction =
   | { type: 'remove'; id: string; size?: string }
   | { type: 'setQty'; id: string; size?: string; quantity: number }
   | { type: 'clear' }
+  | { type: 'setItems'; items: CartItem[] }
 
 const CartContext = createContext<{
   state: CartState
@@ -25,6 +27,7 @@ const CartContext = createContext<{
   removeItem: (id: string, size?: string) => void
   setQuantity: (id: string, quantity: number, size?: string) => void
   clear: () => void
+  setItems: (items: CartItem[]) => void
   totalQty: number
   totalPrice: number
 } | null>(null)
@@ -50,18 +53,87 @@ function cartReducer(state: CartState, action: CartAction): CartState {
     }
     case 'clear':
       return { items: [] }
+    case 'setItems':
+      return { items: action.items }
     default:
       return state
   }
 }
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [state, dispatch] = useReducer(cartReducer, { items: [] })
+  // Load from localStorage on mount
+  const loadFromStorage = (): CartItem[] => {
+    try {
+      const stored = localStorage.getItem('cart');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const [state, dispatch] = useReducer(cartReducer, { items: loadFromStorage() });
+
+  // Save to localStorage on every change
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(state.items));
+    
+    // Save to server if user is logged in (check from localStorage)
+    const storedUser = localStorage.getItem('authUser');
+    if (storedUser && state.items.length > 0) {
+      try {
+        const user = JSON.parse(storedUser);
+        saveCartToServer(user.id, state.items).catch(err => 
+          console.error('Failed to save cart to server:', err)
+        );
+      } catch {
+        // Ignore parse errors
+      }
+    }
+  }, [state.items]);
+
+  // Load from server on login (listen to cartSync event)
+  useEffect(() => {
+    const handleCartSync = async () => {
+      const storedUser = localStorage.getItem('authUser');
+      if (storedUser) {
+        try {
+          const user = JSON.parse(storedUser);
+          const serverCart = await loadCartFromServer(user.id);
+          if (serverCart && serverCart.length > 0) {
+            // Merge with local cart or replace based on merge decision
+            const localCart = loadFromStorage();
+            if (localCart.length === 0) {
+              // No local cart, use server cart
+              dispatch({ type: 'setItems', items: serverCart });
+            }
+          }
+        } catch (error) {
+          console.error('Error loading cart from server:', error);
+        }
+      }
+    };
+
+    window.addEventListener('cartSync', handleCartSync);
+    // Initial load if user is already logged in
+    handleCartSync();
+
+    return () => {
+      window.removeEventListener('cartSync', handleCartSync);
+    };
+  }, []);
 
   const addItem = (item: Omit<CartItem, 'quantity'>, quantity = 1) => dispatch({ type: 'add', item, quantity })
   const removeItem = (id: string, size?: string) => dispatch({ type: 'remove', id, size })
   const setQuantity = (id: string, quantity: number, size?: string) => dispatch({ type: 'setQty', id, quantity, size })
-  const clear = () => dispatch({ type: 'clear' })
+  const clear = () => {
+    dispatch({ type: 'clear' });
+    localStorage.removeItem('cart');
+  }
+
+  // Add action to set items directly (for cart merge)
+  const setItems = (items: CartItem[]) => {
+    dispatch({ type: 'setItems', items });
+  };
 
   const { totalQty, totalPrice } = useMemo(() => {
     const qty = state.items.reduce((n, i) => n + i.quantity, 0)
@@ -69,7 +141,17 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { totalQty: qty, totalPrice: price }
   }, [state.items])
 
-  const value = useMemo(() => ({ state, addItem, removeItem, setQuantity, clear, totalQty, totalPrice }), [state, totalQty, totalPrice])
+  const value = useMemo(() => ({ 
+    state, 
+    addItem, 
+    removeItem, 
+    setQuantity, 
+    clear, 
+    totalQty, 
+    totalPrice,
+    setItems
+  }), [state, totalQty, totalPrice])
+  
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>
 }
 

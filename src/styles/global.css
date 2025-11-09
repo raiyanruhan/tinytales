@@ -112,16 +112,33 @@ a:focus-visible {
   transform: translateY(-4px);
 }
 
+.product-card {
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  background: var(--white);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
+  transform: translateY(-6px);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
 .badge {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   padding: 6px 14px;
   border-radius: 999px;
   background: var(--mint);
   color: #fff;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 12px;
   white-space: nowrap;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  text-align: center;
 }
 
 .badge-sale {
@@ -321,6 +338,10 @@ a:focus-visible {
   transform: translateY(-2px) !important;
 }
 
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 .btn-pay:active {
   transform: translateY(var(--press-distance)) !important;
   box-shadow: 
@@ -377,6 +398,15 @@ a:focus-visible {
 
   nav {
     display: none !important;
+  }
+
+  .product-page-grid {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+
+  .product-page-grid > div:last-child {
+    padding: 0 !important;
   }
 }
 
