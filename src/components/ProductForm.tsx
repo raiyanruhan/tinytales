@@ -12,7 +12,7 @@ interface ProductFormProps {
 export default function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
   const [name, setName] = useState(product?.name || '');
   const [description, setDescription] = useState(product?.description || '');
-  const [category, setCategory] = useState<Category>(product?.category || 'Newborn');
+  const [category, setCategory] = useState<Category>((product?.category as Category) || 'Newborn');
   const [price, setPrice] = useState(product?.price?.toString() || '');
   const [sizes, setSizes] = useState<string[]>(product?.sizes || []);
   const [sizeInput, setSizeInput] = useState('');
@@ -21,7 +21,7 @@ export default function ProductForm({ product, onSubmit, onCancel }: ProductForm
       // Handle both old format (string[]) and new format (ProductColor[])
       if (Array.isArray(product.colors) && product.colors.length > 0) {
         if (typeof product.colors[0] === 'string') {
-          return (product.colors as string[]).map(c => ({ name: c, images: [] }));
+          return (product.colors as unknown as string[]).map(c => ({ name: c, images: [] }));
         }
         return product.colors as Array<{ name: string; images: string[] }>;
       }

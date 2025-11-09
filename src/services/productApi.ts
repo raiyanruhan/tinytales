@@ -1,3 +1,5 @@
+import { Category } from '@data/products';
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 export interface ProductColor {
@@ -9,7 +11,7 @@ export interface Product {
   id: string;
   name: string;
   price: number;
-  category: string;
+  category: Category;
   description: string;
   colors: ProductColor[];
   sizes: string[];
@@ -29,17 +31,24 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
     ...options.headers,
   };
 
-  const response = await fetch(url, {
-    ...options,
-    headers,
-  });
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers,
+    });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Request failed' }));
-    throw new Error(error.error || 'Request failed');
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Request failed' }));
+      throw new Error(error.error || `Request failed with status ${response.status}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error('Network error: Unable to connect to server. Please make sure the backend server is running on http://localhost:3001');
+    }
+    throw error;
   }
-
-  return response.json();
 }
 
 async function fetchFormData(url: string, formData: FormData) {
@@ -49,18 +58,25 @@ async function fetchFormData(url: string, formData: FormData) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers,
-    body: formData,
-  });
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Upload failed' }));
-    throw new Error(error.error || 'Upload failed');
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Upload failed' }));
+      throw new Error(error.error || `Upload failed with status ${response.status}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error('Network error: Unable to connect to server. Please make sure the backend server is running on http://localhost:3001');
+    }
+    throw error;
   }
-
-  return response.json();
 }
 
 export async function getProducts(): Promise<Product[]> {

@@ -60,7 +60,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       return false;
     } catch (error) {
-      console.error('Token verification error:', error);
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        console.error('Network error: Backend server may not be running on http://localhost:3001');
+      } else {
+        console.error('Token verification error:', error);
+      }
       return false;
     }
   };
@@ -102,6 +106,7 @@ export function useAuth() {
   }
   return context;
 }
+
 
 
 

@@ -1,13 +1,28 @@
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import { useCart } from '@context/CartContext'
-import type { Product } from '@data/products'
+import type { Product as DataProduct } from '@data/products'
+import type { Product as ApiProduct } from '@services/productApi'
 import { HeartIcon, HeartOutlineIcon } from './Icons'
+
+type Product = DataProduct | ApiProduct;
 
 export default function ProductCard({ product }: { product: Product }) {
   const [showQuickAdd, setShowQuickAdd] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
   const { addItem } = useCart()
+
+  // Get image from product - handle both formats
+  const getProductImage = () => {
+    if (product.image) return product.image;
+    if (Array.isArray(product.colors) && product.colors.length > 0) {
+      const firstColor = product.colors[0];
+      if (typeof firstColor === 'object' && 'images' in firstColor && firstColor.images.length > 0) {
+        return firstColor.images[0];
+      }
+    }
+    return '';
+  }
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -15,7 +30,7 @@ export default function ProductCard({ product }: { product: Product }) {
       id: product.id,
       name: product.name,
       price: product.price,
-      image: product.image,
+      image: getProductImage(),
       size: product.sizes[0]
     }, 1)
     setShowQuickAdd(false)
@@ -35,7 +50,7 @@ export default function ProductCard({ product }: { product: Product }) {
       <Link to={`/product/${product.id}`} style={{ display: 'block' }}>
         <div style={{ position: 'relative', aspectRatio: '4/3', overflow: 'hidden' }}>
           <img 
-            src={product.image} 
+            src={getProductImage()} 
             alt={product.name}
             style={{
               width: '100%',

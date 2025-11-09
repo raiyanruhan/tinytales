@@ -86,7 +86,11 @@ export default function EmailVerification() {
       login(data.token, data.user);
       navigate('/');
     } catch (err) {
-      setError('Network error. Please try again.');
+      if (err instanceof TypeError && err.message.includes('fetch')) {
+        setError('Network error: Unable to connect to server. Please make sure the backend server is running on http://localhost:3001');
+      } else {
+        setError(err instanceof Error ? err.message : 'Network error. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -116,7 +120,11 @@ export default function EmailVerification() {
       setOtp(['', '', '', '', '', '']);
       document.getElementById('otp-0')?.focus();
     } catch (err) {
-      setError('Network error. Please try again.');
+      if (err instanceof TypeError && err.message.includes('fetch')) {
+        setError('Network error: Unable to connect to server. Please make sure the backend server is running on http://localhost:3001');
+      } else {
+        setError(err instanceof Error ? err.message : 'Network error. Please try again.');
+      }
     } finally {
       setResending(false);
     }
@@ -251,6 +259,7 @@ export default function EmailVerification() {
     </div>
   );
 }
+
 
 
 

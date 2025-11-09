@@ -26,7 +26,12 @@ export default function Login() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        throw new Error(`Server error: ${response.status} ${response.statusText}`);
+      }
 
       if (!response.ok) {
         if (data.needsVerification) {
@@ -42,7 +47,11 @@ export default function Login() {
       login(data.token, data.user);
       navigate('/');
     } catch (err) {
-      setError('Network error. Please try again.');
+      if (err instanceof TypeError && err.message.includes('fetch')) {
+        setError('Network error: Unable to connect to server. Please make sure the backend server is running on http://localhost:3001');
+      } else {
+        setError(err instanceof Error ? err.message : 'Network error. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -181,6 +190,7 @@ export default function Login() {
     </div>
   );
 }
+
 
 
 
