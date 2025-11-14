@@ -93,11 +93,11 @@ export default function OrderDetailPage() {
   }
 
   return (
-    <section style={{ padding: '64px 0', minHeight: '60vh', background: 'var(--cream)' }}>
+    <section className="order-detail-page" style={{ padding: '64px 0', minHeight: '60vh', background: 'var(--cream)' }}>
       <div className="container">
         <button
           onClick={() => navigate(user ? '/account' : '/')}
-          className="btn-3d"
+          className="btn-3d back-button"
           style={{
             background: 'var(--white)',
             color: 'var(--navy)',
@@ -112,6 +112,20 @@ export default function OrderDetailPage() {
           showCancelButton={user?.email.toLowerCase() === order.email.toLowerCase()}
         />
       </div>
+      <style>{`
+        @media (max-width: 767px) {
+          .order-detail-page {
+            padding: 32px 0 !important;
+          }
+          .order-detail-page .back-button {
+            width: 100% !important;
+            min-height: 44px !important;
+            padding: 12px 16px !important;
+            font-size: 16px !important;
+            margin-bottom: 16px !important;
+          }
+        }
+      `}</style>
     </section>
   );
 }

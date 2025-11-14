@@ -5,6 +5,7 @@ import type { Product as DataProduct } from '@data/products'
 import type { Product as ApiProduct } from '@services/productApi'
 import { HeartIcon, HeartOutlineIcon, TakaIcon } from './Icons'
 import LoadingButton from './LoadingButton'
+import { getImageUrl } from '@utils/imageUrl'
 
 type Product = DataProduct | ApiProduct;
 
@@ -87,7 +88,7 @@ export default function ProductCard({ product }: { product: Product }) {
           flexShrink: 0
         }}>
           <img 
-            src={getProductImage()} 
+            src={getImageUrl(getProductImage())} 
             alt={product.name}
             style={{
               width: '100%',
@@ -359,6 +360,23 @@ export default function ProductCard({ product }: { product: Product }) {
           </div>
         )}
       </div>
+      <style>{`
+        @media (max-width: 767px) {
+          .product-card {
+            width: 100% !important;
+          }
+          .product-card button {
+            min-height: 44px !important;
+            font-size: 14px !important;
+            padding: 12px 16px !important;
+          }
+          .product-card .size-selector button {
+            min-height: 44px !important;
+            padding: 10px 16px !important;
+            font-size: 14px !important;
+          }
+        }
+      `}</style>
     </div>
   )
 }

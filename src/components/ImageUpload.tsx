@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { uploadImages } from '@services/productApi';
+import { getImageUrl } from '@utils/imageUrl';
 
 interface ImageUploadProps {
   images: string[];
@@ -59,7 +60,7 @@ export default function ImageUpload({ images, onChange, multiple = true, label =
   };
 
   return (
-    <div style={{ marginBottom: '1.5rem' }}>
+    <div className="image-upload" style={{ marginBottom: '1.5rem' }}>
       <label style={{
         display: 'block',
         marginBottom: '0.5rem',
@@ -70,7 +71,7 @@ export default function ImageUpload({ images, onChange, multiple = true, label =
       </label>
 
       {/* File Upload */}
-      <div style={{ marginBottom: '1rem' }}>
+      <div className="upload-button-container" style={{ marginBottom: '1rem' }}>
         <input
           ref={fileInputRef}
           type="file"
@@ -84,19 +85,46 @@ export default function ImageUpload({ images, onChange, multiple = true, label =
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
-          className="btn-primary"
+          className="upload-btn"
           style={{
-            marginRight: '0.5rem',
-            opacity: uploading ? 0.6 : 1,
-            cursor: uploading ? 'not-allowed' : 'pointer'
+            padding: '10px 20px',
+            background: uploading ? '#94a3b8' : 'linear-gradient(135deg, var(--mint), var(--sky))',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '14px',
+            fontWeight: 600,
+            cursor: uploading ? 'not-allowed' : 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            transition: 'all 0.2s ease',
+            opacity: uploading ? 0.7 : 1,
+            boxShadow: uploading ? 'none' : '0 2px 4px rgba(0,0,0,0.1)',
+            minWidth: 'auto',
+            width: 'auto'
+          }}
+          onMouseEnter={(e) => {
+            if (!uploading) {
+              e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!uploading) {
+              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }
           }}
         >
+          <span style={{ fontSize: '16px' }}>📤</span>
           {uploading ? 'Uploading...' : 'Upload Images'}
         </button>
       </div>
 
       {/* URL Input */}
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+      <div className="url-input-row" style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
         <input
           ref={urlInputRef}
           type="url"
@@ -104,6 +132,7 @@ export default function ImageUpload({ images, onChange, multiple = true, label =
           onChange={(e) => setUrlInput(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleUrlAdd()}
           placeholder="Or enter image URL"
+          className="url-input"
           style={{
             flex: 1,
             padding: '0.75rem',
@@ -115,7 +144,7 @@ export default function ImageUpload({ images, onChange, multiple = true, label =
         <button
           type="button"
           onClick={handleUrlAdd}
-          className="btn-primary"
+          className="btn-primary add-url-btn"
         >
           Add URL
         </button>
@@ -136,7 +165,7 @@ export default function ImageUpload({ images, onChange, multiple = true, label =
 
       {/* Image Preview Grid */}
       {images.length > 0 && (
-        <div style={{
+        <div className="image-grid" style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
           gap: '1rem',
@@ -145,6 +174,7 @@ export default function ImageUpload({ images, onChange, multiple = true, label =
           {images.map((img, index) => (
             <div
               key={index}
+              className="image-preview"
               style={{
                 position: 'relative',
                 aspectRatio: '1',
@@ -154,7 +184,7 @@ export default function ImageUpload({ images, onChange, multiple = true, label =
               }}
             >
               <img
-                src={img.startsWith('http') ? img : `http://localhost:3001${img}`}
+                src={getImageUrl(img)}
                 alt={`Upload ${index + 1}`}
                 style={{
                   width: '100%',
@@ -168,6 +198,7 @@ export default function ImageUpload({ images, onChange, multiple = true, label =
               <button
                 type="button"
                 onClick={() => handleRemove(index)}
+                className="remove-image-btn"
                 style={{
                   position: 'absolute',
                   top: '4px',
@@ -192,6 +223,45 @@ export default function ImageUpload({ images, onChange, multiple = true, label =
           ))}
         </div>
       )}
+      <style>{`
+        @media (max-width: 767px) {
+          .image-upload .upload-btn {
+            width: 100% !important;
+            margin-right: 0 !important;
+            margin-bottom: 12px !important;
+            min-height: 44px !important;
+            padding: 12px 16px !important;
+            font-size: 16px !important;
+          }
+          .image-upload .url-input-row {
+            flex-direction: column !important;
+            gap: 12px !important;
+          }
+          .image-upload .url-input {
+            width: 100% !important;
+            font-size: 16px !important;
+            min-height: 44px !important;
+            padding: 12px 16px !important;
+          }
+          .image-upload .add-url-btn {
+            width: 100% !important;
+            min-height: 44px !important;
+            padding: 12px 16px !important;
+            font-size: 16px !important;
+          }
+          .image-upload .image-grid {
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 8px !important;
+          }
+          .image-upload .remove-image-btn {
+            width: 32px !important;
+            height: 32px !important;
+            min-width: 32px !important;
+            min-height: 32px !important;
+            font-size: 18px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

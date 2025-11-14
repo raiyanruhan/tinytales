@@ -48,7 +48,7 @@ export default function AllProductsPage() {
   }
 
   return (
-    <section style={{ padding: '64px 0', background: 'var(--cream)' }}>
+    <section className="products-page" style={{ padding: '64px 0', background: 'var(--cream)' }}>
       <div className="container">
         <div style={{ marginBottom: 48, textAlign: 'center' }}>
           <h1 style={{ 
@@ -78,7 +78,7 @@ export default function AllProductsPage() {
             <p style={{ color: 'var(--navy)' }}>Check back soon for new arrivals!</p>
           </div>
         ) : (
-          <div style={{
+          <div className="product-grid" style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
             gap: 28,
@@ -90,6 +90,23 @@ export default function AllProductsPage() {
           </div>
         )}
       </div>
+      <style>{`
+        @media (max-width: 767px) {
+          .products-page {
+            padding: 32px 0 !important;
+          }
+          .product-grid {
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
+          }
+        }
+        @media (min-width: 768px) and (max-width: 1023px) {
+          .product-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 24px !important;
+          }
+        }
+      `}</style>
     </section>
   )
 }

@@ -34,9 +34,19 @@ function readUsers() {
 function writeUsers(users) {
   try {
     initUsersFile();
-    writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+    const jsonData = JSON.stringify(users, null, 2);
+    writeFileSync(USERS_FILE, jsonData, 'utf8');
+    console.log('Users file written successfully. Total users:', users.length);
+    // Verify the write by reading back
+    const verify = readFileSync(USERS_FILE, 'utf8');
+    const parsed = JSON.parse(verify);
+    console.log('Verification - File contains', parsed.length, 'users');
+    if (parsed.length > 0 && parsed[0].wishlist !== undefined) {
+      console.log('Verification - First user wishlist:', parsed[0].wishlist);
+    }
   } catch (error) {
     console.error('Error writing users:', error);
+    throw error;
   }
 }
 
@@ -58,13 +68,16 @@ export function saveUser(userData) {
   const existingIndex = users.findIndex(u => u.id === userData.id);
   
   if (existingIndex >= 0) {
-    users[existingIndex] = userData;
+    // Merge the updated data with existing user to preserve all fields
+    users[existingIndex] = { ...users[existingIndex], ...userData };
   } else {
     users.push(userData);
   }
   
   writeUsers(users);
-  return userData;
+  // Return the saved user from the array to ensure we have the actual saved data
+  const savedIndex = users.findIndex(u => u.id === userData.id);
+  return savedIndex >= 0 ? users[savedIndex] : userData;
 }
 
 // Update user verification
@@ -112,5 +125,84 @@ export function clearSavedCart(userId) {
   // user.updatedAt = new Date().toISOString();
   // saveUser(user);
   return null;
+}
+
+// Get wishlist for user
+export function getWishlist(userId) {
+  const user = getUserById(userId);
+  return user?.wishlist || [];
+}
+
+// Add product to wishlist
+export function addToWishlist(userId, productId) {
+  console.log('addToWishlist called with:', { userId, productId });
+
+  const user = getUserById(userId);
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  console.log('User found:', { id: user.id, wishlist: user.wishlist });
+
+  // Ensure wishlist exists
+  if (!user.wishlist) {
+    user.wishlist = [];
+  }
+
+  console.log('User wishlist before add:', user.wishlist);
+
+  // Check if product already in wishlist
+  if (!user.wishlist.includes(productId)) {
+    user.wishlist.push(productId);
+    user.updatedAt = new Date().toISOString();
+
+    console.log('User wishlist after add:', user.wishlist);
+
+    // Save the entire updated user object
+    console.log('Saving updated user:', user);
+    const savedUser = saveUser(user);
+    console.log('saveUser returned:', savedUser);
+
+    // Verify the save worked
+    const verifyUser = getUserById(userId);
+    console.log('Verification - User from file:', verifyUser);
+    if (!verifyUser || !verifyUser.wishlist || !verifyUser.wishlist.includes(productId)) {
+      console.error('Wishlist save verification failed!');
+      throw new Error('Failed to save wishlist to database');
+    }
+
+    console.log('SUCCESS: Wishlist saved!');
+  } else {
+    console.log('Product already in wishlist');
+  }
+
+  return user.wishlist;
+}
+
+// Remove product from wishlist
+export function removeFromWishlist(userId, productId) {
+  const user = getUserById(userId);
+  if (!user) {
+    throw new Error('User not found');
+  }
+  
+  if (!user.wishlist) {
+    user.wishlist = [];
+  }
+  
+  user.wishlist = user.wishlist.filter(id => id !== productId);
+  user.updatedAt = new Date().toISOString();
+  saveUser(user);
+  
+  return user.wishlist;
+}
+
+// Check if product is in wishlist
+export function isInWishlist(userId, productId) {
+  const user = getUserById(userId);
+  if (!user || !user.wishlist) {
+    return false;
+  }
+  return user.wishlist.includes(productId);
 }
 

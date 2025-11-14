@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@context/AuthContext';
 import { useCart } from '@context/CartContext';
+import { getNetworkErrorMessage } from '@utils/apiError';
+import { getApiUrl } from '@utils/apiUrl';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_URL = getApiUrl();
 
 export default function EmailVerification() {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -89,7 +91,7 @@ export default function EmailVerification() {
       navigate('/');
     } catch (err) {
       if (err instanceof TypeError && err.message.includes('fetch')) {
-        setError('Network error: Unable to connect to server. Please make sure the backend server is running on http://localhost:3001');
+        setError(getNetworkErrorMessage());
       } else {
         setError(err instanceof Error ? err.message : 'Network error. Please try again.');
       }
@@ -123,7 +125,7 @@ export default function EmailVerification() {
       document.getElementById('otp-0')?.focus();
     } catch (err) {
       if (err instanceof TypeError && err.message.includes('fetch')) {
-        setError('Network error: Unable to connect to server. Please make sure the backend server is running on http://localhost:3001');
+        setError(getNetworkErrorMessage());
       } else {
         setError(err instanceof Error ? err.message : 'Network error. Please try again.');
       }
@@ -133,7 +135,7 @@ export default function EmailVerification() {
   };
 
   return (
-    <div style={{
+    <div className="auth-page" style={{
       minHeight: 'calc(100vh - 80px)',
       display: 'flex',
       alignItems: 'center',
@@ -141,7 +143,7 @@ export default function EmailVerification() {
       padding: '2rem',
       background: 'linear-gradient(135deg, var(--cream) 0%, var(--paper) 100%)'
     }}>
-      <div style={{
+      <div className="auth-card" style={{
         background: 'var(--white)',
         borderRadius: 'var(--radius-lg)',
         padding: '3rem',
@@ -180,11 +182,12 @@ export default function EmailVerification() {
             </div>
           )}
 
-          <div style={{
+          <div className="otp-container" style={{
             display: 'flex',
             gap: '1rem',
             justifyContent: 'center',
-            marginBottom: '2rem'
+            marginBottom: '2rem',
+            flexWrap: 'wrap'
           }}>
             {otp.map((digit, index) => (
               <input
@@ -197,6 +200,7 @@ export default function EmailVerification() {
                 onChange={(e) => handleOtpChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
                 onPaste={index === 0 ? handlePaste : undefined}
+                className="otp-input"
                 style={{
                   width: '60px',
                   height: '70px',
@@ -258,6 +262,33 @@ export default function EmailVerification() {
           </button>
         </div>
       </div>
+      <style>{`
+        @media (max-width: 767px) {
+          .auth-page {
+            padding: 1rem !important;
+            align-items: flex-start !important;
+            padding-top: 2rem !important;
+          }
+          .auth-card {
+            padding: 2rem 1.5rem !important;
+          }
+          .auth-card h1 {
+            font-size: 2rem !important;
+          }
+          .otp-container {
+            gap: 0.75rem !important;
+          }
+          .otp-input {
+            width: 50px !important;
+            height: 60px !important;
+            font-size: 1.5rem !important;
+            min-height: 44px !important;
+          }
+          .auth-card button {
+            min-height: 44px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

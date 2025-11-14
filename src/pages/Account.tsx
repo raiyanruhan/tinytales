@@ -76,14 +76,14 @@ export default function AccountPage() {
 
 
   return (
-    <section style={{ padding: '64px 0', minHeight: '60vh', background: 'var(--cream)' }}>
+    <section className="account-page" style={{ padding: '64px 0', minHeight: '60vh', background: 'var(--cream)' }}>
       <div className="container">
         <h1 style={{ marginBottom: 32 }}>My Account</h1>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '250px 1fr', gap: 32 }}>
+        <div className="account-layout" style={{ display: 'grid', gridTemplateColumns: '250px 1fr', gap: 32 }}>
           {/* Sidebar */}
-          <div className="pastel-card" style={{ padding: 24, height: 'fit-content' }}>
-            <nav style={{ display: 'grid', gap: 8 }}>
+          <div className="account-sidebar pastel-card" style={{ padding: 24, height: 'fit-content' }}>
+            <nav className="account-nav" style={{ display: 'grid', gap: 8 }}>
               <button
                 onClick={() => { setActiveTab('information'); setSelectedOrder(null); }}
                 style={{
@@ -148,7 +148,7 @@ export default function AccountPage() {
           </div>
 
           {/* Content */}
-          <div>
+          <div className="account-content">
             {selectedOrder ? (
               <div>
                 <button
@@ -178,7 +178,7 @@ export default function AccountPage() {
                         <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>Email</label>
                         <input
                           type="email"
-                          value={user.email}
+                          value={user?.email || ''}
                           disabled
                           style={{
                             width: '100%',
@@ -286,6 +286,41 @@ export default function AccountPage() {
           </div>
         </div>
       </div>
+      <style>{`
+        @media (max-width: 767px) {
+          .account-page {
+            padding: 32px 0 !important;
+          }
+          .account-layout {
+            grid-template-columns: 1fr !important;
+            gap: 24px !important;
+          }
+          .account-sidebar {
+            order: 1;
+          }
+          .account-nav {
+            display: flex !important;
+            flex-direction: row !important;
+            overflow-x: auto;
+            gap: 8px !important;
+            padding-bottom: 8px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+          }
+          .account-nav::-webkit-scrollbar {
+            display: none;
+          }
+          .account-nav button {
+            white-space: nowrap;
+            padding: 12px 20px !important;
+            min-width: auto;
+            flex-shrink: 0;
+          }
+          .account-content {
+            order: 2;
+          }
+        }
+      `}</style>
     </section>
   );
 }

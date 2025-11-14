@@ -179,11 +179,11 @@ export default function CheckoutPage() {
   const fieldStyle: React.CSSProperties = { display: 'grid', gap: 6, marginBottom: 10 };
 
   return (
-    <section style={{ padding: '64px 0', background: 'var(--cream)', minHeight: '60vh' }}>
+    <section className="checkout-page" style={{ padding: '64px 0', background: 'var(--cream)', minHeight: '60vh' }}>
       <div className="container">
         <h1 style={{ marginBottom: 32 }}>Checkout</h1>
         
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: 32 }}>
+        <div className="checkout-layout" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: 32 }}>
           <div className="pastel-card" style={{ padding: 24 }}>
             <h2 style={{ marginTop: 0, marginBottom: 24 }}>Shipping Information</h2>
             
@@ -511,6 +511,34 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+      <style>{`
+        @media (max-width: 767px) {
+          .checkout-page {
+            padding: 32px 0 !important;
+          }
+          .checkout-layout {
+            grid-template-columns: 1fr !important;
+            gap: 24px !important;
+          }
+          .checkout-layout > div:last-child {
+            position: static !important;
+            order: -1;
+          }
+          .checkout-layout > div:first-child {
+            order: 1;
+          }
+          .checkout-layout input[type="text"],
+          .checkout-layout input[type="email"],
+          .checkout-layout input[type="tel"] {
+            font-size: 16px !important;
+            padding: 12px 16px !important;
+            min-height: 44px !important;
+          }
+          .checkout-layout > div:first-child > form > div[style*="grid-template-columns"] {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </section>
   );
 }

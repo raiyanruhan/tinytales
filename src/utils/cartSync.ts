@@ -73,3 +73,8 @@ export function clearLocalCart(): void {
   localStorage.removeItem('cart');
 }
 
+
+
+
+
+

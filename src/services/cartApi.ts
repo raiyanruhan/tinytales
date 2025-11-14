@@ -1,4 +1,7 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+import { getNetworkErrorMessage } from '@utils/apiError';
+import { getApiUrl } from '@utils/apiUrl';
+
+const API_URL = getApiUrl();
 
 export interface CartItem {
   id: string;
@@ -31,7 +34,7 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
     return response.json();
   } catch (error) {
     if (error instanceof TypeError && error.message.includes('fetch')) {
-      throw new Error('Network error: Unable to connect to server. Please make sure the backend server is running on http://localhost:3001');
+      throw new Error(getNetworkErrorMessage());
     }
     throw error;
   }

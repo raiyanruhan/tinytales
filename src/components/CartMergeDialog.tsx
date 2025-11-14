@@ -4,7 +4,7 @@ import { CartItem } from '@services/cartApi';
 interface CartMergeDialogProps {
   localCart: CartItem[];
   serverCart: CartItem[];
-  onChoose: (cart: CartItem[]) => void;
+  onChoose: (useLocal: boolean) => void;
 }
 
 export default function CartMergeDialog({ localCart, serverCart, onChoose }: CartMergeDialogProps) {
@@ -12,9 +12,9 @@ export default function CartMergeDialog({ localCart, serverCart, onChoose }: Car
 
   const handleConfirm = () => {
     if (selected === 'local') {
-      onChoose(localCart);
+      onChoose(true);
     } else if (selected === 'server') {
-      onChoose(serverCart);
+      onChoose(false);
     }
   };
 

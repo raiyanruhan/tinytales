@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@context/AuthContext';
 import { useCart } from '@context/CartContext';
+import { getNetworkErrorMessage } from '@utils/apiError';
+import { getApiUrl } from '@utils/apiUrl';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_URL = getApiUrl();
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -50,7 +52,7 @@ export default function Login() {
       navigate('/');
     } catch (err) {
       if (err instanceof TypeError && err.message.includes('fetch')) {
-        setError('Network error: Unable to connect to server. Please make sure the backend server is running on http://localhost:3001');
+        setError(getNetworkErrorMessage());
       } else {
         setError(err instanceof Error ? err.message : 'Network error. Please try again.');
       }
@@ -60,7 +62,7 @@ export default function Login() {
   };
 
   return (
-    <div style={{
+    <div className="auth-page" style={{
       minHeight: 'calc(100vh - 80px)',
       display: 'flex',
       alignItems: 'center',
@@ -68,7 +70,7 @@ export default function Login() {
       padding: '2rem',
       background: 'linear-gradient(135deg, var(--cream) 0%, var(--paper) 100%)'
     }}>
-      <div style={{
+      <div className="auth-card" style={{
         background: 'var(--white)',
         borderRadius: 'var(--radius-lg)',
         padding: '3rem',
@@ -189,6 +191,29 @@ export default function Login() {
           </Link>
         </div>
       </div>
+      <style>{`
+        @media (max-width: 767px) {
+          .auth-page {
+            padding: 1rem !important;
+            align-items: flex-start !important;
+            padding-top: 2rem !important;
+          }
+          .auth-card {
+            padding: 2rem 1.5rem !important;
+          }
+          .auth-card h1 {
+            font-size: 2rem !important;
+          }
+          .auth-card input {
+            font-size: 16px !important;
+            padding: 12px 16px !important;
+            min-height: 44px !important;
+          }
+          .auth-card button {
+            min-height: 44px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useMemo, useReducer, useEffect } from 'react'
 import { saveCartToServer, loadCartFromServer } from '@services/cartApi'
+import { toast } from '@utils/toast'
 
 export type CartItem = {
   id: string
@@ -122,12 +123,28 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  const addItem = (item: Omit<CartItem, 'quantity'>, quantity = 1) => dispatch({ type: 'add', item, quantity })
-  const removeItem = (id: string, size?: string) => dispatch({ type: 'remove', id, size })
+  const addItem = (item: Omit<CartItem, 'quantity'>, quantity = 1) => {
+    dispatch({ type: 'add', item, quantity })
+    toast.success('Product added to cart', {
+      description: `${item.name}${item.size ? ` (${item.size})` : ''} - ${quantity} ${quantity === 1 ? 'item' : 'items'}`,
+    })
+  }
+  const removeItem = (id: string, size?: string) => {
+    const item = state.items.find(i => i.id === id && i.size === size)
+    dispatch({ type: 'remove', id, size })
+    if (item) {
+      toast.info('Product removed from cart', {
+        description: `${item.name}${item.size ? ` (${item.size})` : ''}`,
+      })
+    }
+  }
   const setQuantity = (id: string, quantity: number, size?: string) => dispatch({ type: 'setQty', id, quantity, size })
   const clear = () => {
     dispatch({ type: 'clear' });
     localStorage.removeItem('cart');
+    toast.info('Cart cleared', {
+      description: 'All items have been removed from your cart',
+    })
   }
 
   // Add action to set items directly (for cart merge)

@@ -1,4 +1,5 @@
 import { Order } from '@services/orderApi';
+import { getImageUrl } from '@utils/imageUrl';
 
 interface OrderDetailProps {
   order: Order;
@@ -27,15 +28,15 @@ export default function OrderDetail({ order, onCancel, showCancelButton = false 
   };
 
   return (
-    <div className="pastel-card" style={{ padding: 32 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, flexWrap: 'wrap', gap: 16 }}>
-        <div>
+    <div className="pastel-card order-detail-card" style={{ padding: 32 }}>
+      <div className="order-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, flexWrap: 'wrap', gap: 16 }}>
+        <div className="order-title-section">
           <h2 style={{ marginTop: 0, marginBottom: 8 }}>Order #{order.orderNumber}</h2>
           <div style={{ color: 'var(--navy)', fontSize: 14 }}>
             Placed on {new Date(order.createdAt).toLocaleString()}
           </div>
         </div>
-        <div style={{
+        <div className="order-status-badge" style={{
           padding: '12px 24px',
           borderRadius: 12,
           background: getStatusColor(order.status),
@@ -60,12 +61,13 @@ export default function OrderDetail({ order, onCancel, showCancelButton = false 
         </div>
       )}
 
-      <div style={{ marginBottom: 32 }}>
+      <div className="order-items-section" style={{ marginBottom: 32 }}>
         <h3 style={{ marginBottom: 16 }}>Order Items</h3>
-        <div style={{ display: 'grid', gap: 16 }}>
+        <div className="order-items-list" style={{ display: 'grid', gap: 16 }}>
           {order.items.map((item, idx) => (
             <div
               key={idx}
+              className="order-item"
               style={{
                 display: 'flex',
                 gap: 16,
@@ -75,8 +77,9 @@ export default function OrderDetail({ order, onCancel, showCancelButton = false 
               }}
             >
               <img
-                src={item.image}
+                src={getImageUrl(item.image)}
                 alt={item.name}
+                className="order-item-image"
                 style={{
                   width: 100,
                   height: 100,
@@ -84,7 +87,7 @@ export default function OrderDetail({ order, onCancel, showCancelButton = false 
                   borderRadius: 8
                 }}
               />
-              <div style={{ flex: 1 }}>
+              <div className="order-item-details" style={{ flex: 1 }}>
                 <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 8 }}>
                   {item.name}
                 </div>
@@ -103,13 +106,13 @@ export default function OrderDetail({ order, onCancel, showCancelButton = false 
         </div>
       </div>
 
-      <div style={{
+      <div className="order-info-grid" style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
         gap: 24,
         marginBottom: 32
       }}>
-        <div>
+        <div className="shipping-address-section">
           <h3 style={{ marginBottom: 12 }}>Shipping Address</h3>
           <div style={{ color: 'var(--navy)', lineHeight: 1.8 }}>
             {order.address.firstName} {order.address.lastName}<br />
@@ -131,18 +134,18 @@ export default function OrderDetail({ order, onCancel, showCancelButton = false 
           )}
         </div>
 
-        <div>
+        <div className="order-summary-section">
           <h3 style={{ marginBottom: 12 }}>Order Summary</h3>
-          <div style={{ display: 'grid', gap: 8 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div className="summary-rows" style={{ display: 'grid', gap: 8 }}>
+            <div className="summary-row" style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span>Subtotal</span>
               <span>Tk {total.toFixed(2)}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div className="summary-row" style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span>Shipping</span>
               <span>Tk {shippingCost.toFixed(2)}</span>
             </div>
-            <div style={{
+            <div className="summary-row total-row" style={{
               display: 'flex',
               justifyContent: 'space-between',
               paddingTop: 16,
@@ -161,10 +164,10 @@ export default function OrderDetail({ order, onCancel, showCancelButton = false 
       </div>
 
       {canCancel && onCancel && (
-        <div style={{ textAlign: 'center', paddingTop: 24, borderTop: '1px solid var(--cream)' }}>
+        <div className="order-actions" style={{ textAlign: 'center', paddingTop: 24, borderTop: '1px solid var(--cream)' }}>
           <button
             onClick={() => onCancel(order.id)}
-            className="btn-3d"
+            className="btn-3d cancel-order-btn"
             style={{
               background: 'var(--white)',
               color: 'var(--coral)',
@@ -191,7 +194,74 @@ export default function OrderDetail({ order, onCancel, showCancelButton = false 
           )}
         </div>
       )}
+      <style>{`
+        @media (max-width: 767px) {
+          .order-detail-card {
+            padding: 20px !important;
+          }
+          .order-header {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 12px !important;
+          }
+          .order-title-section h2 {
+            font-size: 1.5rem !important;
+          }
+          .order-status-badge {
+            width: 100% !important;
+            text-align: center !important;
+            padding: 12px 16px !important;
+            font-size: 14px !important;
+          }
+          .order-items-section h3 {
+            font-size: 1.25rem !important;
+          }
+          .order-item {
+            flex-direction: column !important;
+            gap: 12px !important;
+            padding: 12px !important;
+          }
+          .order-item-image {
+            width: 100% !important;
+            height: 200px !important;
+            align-self: center !important;
+          }
+          .order-item-details {
+            text-align: center !important;
+          }
+          .order-info-grid {
+            grid-template-columns: 1fr !important;
+            gap: 24px !important;
+          }
+          .shipping-address-section h3,
+          .order-summary-section h3 {
+            font-size: 1.25rem !important;
+            margin-bottom: 12px !important;
+          }
+          .summary-rows {
+            gap: 12px !important;
+          }
+          .summary-row {
+            font-size: 16px !important;
+            padding: 8px 0 !important;
+          }
+          .total-row {
+            font-size: 18px !important;
+            padding-top: 12px !important;
+          }
+          .order-actions {
+            padding-top: 20px !important;
+          }
+          .cancel-order-btn {
+            width: 100% !important;
+            min-height: 44px !important;
+            padding: 12px 16px !important;
+            font-size: 16px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
+
 

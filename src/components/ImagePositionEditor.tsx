@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { getImageUrl } from '@utils/imageUrl';
 
 interface ImagePosition {
   x: number; // Percentage: 0-100
@@ -116,7 +117,7 @@ export default function ImagePositionEditor({
           >
             <img
               ref={imageRef}
-              src={imageUrl.startsWith('http') ? imageUrl : `http://localhost:3001${imageUrl}`}
+              src={getImageUrl(imageUrl)}
               alt="Position editor"
               onLoad={(e) => {
                 const img = e.currentTarget;
@@ -191,7 +192,7 @@ export default function ImagePositionEditor({
             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
           }}>
             <img
-              src={imageUrl.startsWith('http') ? imageUrl : `http://localhost:3001${imageUrl}`}
+              src={getImageUrl(imageUrl)}
               alt="Preview"
               style={{
                 width: '100%',

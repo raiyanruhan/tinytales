@@ -37,6 +37,15 @@
   --shadow-color: rgba(0, 0, 0, 0.15);
   --shadow-depth: 8px;
   --press-distance: 6px;
+
+  /* Safe Area Insets for iOS devices */
+  --safe-area-inset-top: env(safe-area-inset-top, 0px);
+  --safe-area-inset-right: env(safe-area-inset-right, 0px);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-inset-left: env(safe-area-inset-left, 0px);
+
+  /* Mobile touch target minimum */
+  --touch-target-min: 44px;
 }
 
 * { 
@@ -86,6 +95,13 @@ button {
   cursor: pointer;
   border: none;
   transition: all 0.1s ease-out;
+  -webkit-tap-highlight-color: rgba(68, 176, 144, 0.2);
+  touch-action: manipulation;
+  user-select: none;
+}
+
+button:active {
+  transform: scale(0.98);
 }
 
 button:focus-visible,
@@ -369,35 +385,56 @@ a:focus-visible {
   border: 0;
 }
 
-@media (max-width: 768px) {
+/* Mobile Foundation Styles */
+@media (max-width: 767px) {
   .container {
     padding: 0 1rem;
   }
 
-  h1 { font-size: 2rem; }
-  h2 { font-size: 1.75rem; }
-  h3 { font-size: 1.5rem; }
+  .main-content {
+    padding-bottom: calc(70px + var(--safe-area-inset-bottom)) !important;
+  }
+
+  h1 { font-size: clamp(1.75rem, 5vw, 2.5rem); }
+  h2 { font-size: clamp(1.5rem, 4vw, 2rem); }
+  h3 { font-size: clamp(1.25rem, 3vw, 1.5rem); }
 
   .btn-primary {
     padding: 16px 28px;
     font-size: 18px;
     min-width: 150px;
+    min-height: var(--touch-target-min);
   }
 
   .btn-3d {
     padding: 14px 24px;
     font-size: 16px;
     min-width: auto;
+    min-height: var(--touch-target-min);
   }
 
   .btn-pay {
     padding: 16px 28px !important;
     font-size: 18px !important;
     min-width: 150px !important;
+    min-height: var(--touch-target-min) !important;
   }
 
-  nav {
-    display: none !important;
+  /* Ensure all interactive elements meet touch target minimum */
+  a, button, input, select, textarea {
+    min-height: var(--touch-target-min);
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="tel"],
+  input[type="number"],
+  textarea,
+  select {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+    padding: 12px 16px !important;
+    min-height: var(--touch-target-min) !important;
   }
 
   .product-page-grid {
@@ -410,6 +447,37 @@ a:focus-visible {
   }
 }
 
+/* Tablet Styles */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .main-content {
+    padding-bottom: 0 !important;
+  }
+}
+
+/* Desktop Styles */
+@media (min-width: 1024px) {
+  .main-content {
+    padding-bottom: 0 !important;
+  }
+}
+
+/* Page Transition Styles */
+.page-transition {
+  width: 100%;
+  min-height: 100%;
+}
+
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -417,5 +485,9 @@ a:focus-visible {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  
+  .page-transition {
+    animation: none !important;
   }
 }

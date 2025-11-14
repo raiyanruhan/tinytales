@@ -39,7 +39,7 @@ export default function Home() {
 
       <CategoryGrid />
 
-      <section style={{ padding: '80px 0', background: 'var(--white)' }}>
+      <section style={{ padding: '80px 0', background: 'var(--white)' }} className="home-section">
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
             <h2 style={{ marginBottom: 12 }}>Shop for Boys</h2>
@@ -47,7 +47,7 @@ export default function Home() {
               Comfortable, playful styles for active little ones
             </p>
           </div>
-          <div style={{
+          <div className="product-grid" style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
             gap: 28,
@@ -60,7 +60,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section style={{ padding: '80px 0', background: 'var(--cream)' }}>
+      <section style={{ padding: '80px 0', background: 'var(--cream)' }} className="home-section">
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
             <h2 style={{ marginBottom: 12 }}>Shop for Girls</h2>
@@ -68,7 +68,7 @@ export default function Home() {
               Adorable outfits for every adventure
             </p>
           </div>
-          <div style={{
+          <div className="product-grid" style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
             gap: 28,
@@ -83,7 +83,7 @@ export default function Home() {
 
       <PromotionalBanner />
 
-      <section style={{ padding: '80px 0', background: 'var(--white)' }}>
+      <section style={{ padding: '80px 0', background: 'var(--white)' }} className="home-section">
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
             <h2 style={{ marginBottom: 12 }}>Steal Deals</h2>
@@ -91,7 +91,7 @@ export default function Home() {
               Limited-time savings on favorites
             </p>
           </div>
-          <div style={{
+          <div className="product-grid" style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
             gap: 28,
@@ -107,6 +107,23 @@ export default function Home() {
       <SocialFeed />
 
       <Newsletter />
+      <style>{`
+        @media (max-width: 767px) {
+          .home-section {
+            padding: 40px 0 !important;
+          }
+          .product-grid {
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
+          }
+        }
+        @media (min-width: 768px) and (max-width: 1023px) {
+          .product-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 24px !important;
+          }
+        }
+      `}</style>
     </>
   )
 }

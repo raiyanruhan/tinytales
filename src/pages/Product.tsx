@@ -4,11 +4,15 @@ import { getProduct as getProductFromApi } from '@services/productApi'
 import { getProduct as getProductFromData, products as fallbackProducts } from '@data/products'
 import QuantitySelector from '@components/QuantitySelector'
 import { useCart } from '@context/CartContext'
+import { useAuth } from '@context/AuthContext'
 import { Link } from 'react-router-dom'
 import { Product } from '@services/productApi'
 import ImageZoom from '@components/ImageZoom'
-import { TakaIcon } from '@components/Icons'
+import { TakaIcon, HeartIcon, HeartOutlineIcon } from '@components/Icons'
 import LoadingButton from '@components/LoadingButton'
+import { getImageUrl } from '@utils/imageUrl'
+import { addToWishlist, removeFromWishlist, isInWishlist as checkInWishlist } from '@services/wishlistApi'
+import { toast } from '@utils/toast'
 
 export default function ProductPage() {
   const { id } = useParams()
@@ -19,11 +23,20 @@ export default function ProductPage() {
   const [selectedColor, setSelectedColor] = useState<string>('')
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [showSizeGuide, setShowSizeGuide] = useState(false)
+  const [inWishlist, setInWishlist] = useState(false)
+  const [wishlistLoading, setWishlistLoading] = useState(false)
   const { addItem } = useCart()
+  const { user, isAuthenticated } = useAuth()
 
   useEffect(() => {
     loadProduct()
   }, [id])
+
+  useEffect(() => {
+    if (product && user && isAuthenticated) {
+      checkWishlistStatus()
+    }
+  }, [product, user, isAuthenticated])
 
   const loadProduct = async () => {
     if (!id) return
@@ -127,6 +140,78 @@ export default function ProductPage() {
     }
   }
 
+  const checkWishlistStatus = async () => {
+    if (!product || !user) return
+    try {
+      const status = await checkInWishlist(user.id, product.id)
+      setInWishlist(status)
+    } catch (error) {
+      console.error('Error checking wishlist status:', error)
+      // Set to false on error to prevent UI inconsistency
+      setInWishlist(false)
+    }
+  }
+
+  const handleWishlistToggle = async () => {
+    if (!isAuthenticated || !user || !product) {
+      return
+    }
+
+    setWishlistLoading(true)
+    try {
+      if (inWishlist) {
+        const result = await removeFromWishlist(user.id, product.id)
+        // Verify the product was actually removed
+        if (result && !result.includes(product.id)) {
+          setInWishlist(false)
+          toast.info('Removed from wishlist', {
+            description: product.name,
+          })
+        } else {
+          // Re-check status if something went wrong
+          await checkWishlistStatus()
+          toast.error('Failed to remove from wishlist', {
+            description: 'Please try again',
+          })
+        }
+      } else {
+        console.log('Adding to wishlist:', { userId: user.id, productId: product.id })
+        const result = await addToWishlist(user.id, product.id)
+        console.log('Wishlist API result:', result, 'Type:', typeof result, 'Is array:', Array.isArray(result))
+        // Verify the product was actually added
+        if (result && Array.isArray(result) && result.includes(product.id)) {
+          setInWishlist(true)
+          toast.success('Added to wishlist', {
+            description: product.name,
+          })
+          console.log('Wishlist successfully added. Setting UI to true.')
+          // Double-check by re-fetching status
+          setTimeout(async () => {
+            const status = await checkInWishlist(user.id, product.id)
+            console.log('Double-check wishlist status:', status)
+            setInWishlist(status)
+          }, 500)
+        } else {
+          console.error('Wishlist result validation failed:', { result, productId: product.id })
+          // Re-check status if something went wrong
+          await checkWishlistStatus()
+          toast.error('Failed to add to wishlist', {
+            description: 'Please try again',
+          })
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling wishlist:', error)
+      // Re-check status on error to sync with server
+      await checkWishlistStatus()
+      toast.error('Failed to update wishlist', {
+        description: error instanceof Error ? error.message : 'Please try again',
+      })
+    } finally {
+      setWishlistLoading(false)
+    }
+  }
+
   return (
     <section style={{ padding: '64px 0', background: 'var(--cream)' }}>
       <div className="container">
@@ -152,7 +237,7 @@ export default function ProductPage() {
               boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)'
             }}>
               <ImageZoom
-                src={currentImage.url}
+                src={getImageUrl(currentImage.url)}
                 alt={product.name}
                 imagePosition={(product as any).imagePosition}
                 style={{
@@ -201,7 +286,7 @@ export default function ProductPage() {
                     }}
                   >
                     <img
-                      src={img.url.startsWith('http') ? img.url : `http://localhost:3001${img.url}`}
+                      src={getImageUrl(img.url)}
                       alt={`${product.name} - ${img.color}`}
                       style={{
                         width: '100%',
@@ -220,7 +305,7 @@ export default function ProductPage() {
           </div>
           
           {/* Product Details */}
-          <div style={{ padding: '0 0 0 32px' }}>
+          <div className="product-details" style={{ padding: '0 0 0 32px' }}>
             <div style={{
               fontSize: 11,
               color: 'var(--sky)',
@@ -472,33 +557,119 @@ export default function ProductPage() {
               </div>
             </div>
 
-            {/* Add to Cart */}
+            {/* Add to Cart and Wishlist */}
             <div style={{
               display: 'flex',
+              flexDirection: 'column',
               gap: 12,
-              alignItems: 'center',
               marginBottom: 24
             }}>
-              <QuantitySelector value={qty} onChange={setQty} />
-              <LoadingButton
-                onClick={async () => {
-                  // Small delay to show loader
-                  await new Promise(resolve => setTimeout(resolve, 500))
-                  addItem({
-                    id: product.id,
-                    name: product.name,
-                    price: product.price,
-                    image: currentImage.url,
-                    size
-                  }, qty)
-                }}
-                loadingKey={`add-to-cart-${product.id}`}
-                variant="primary"
-                size="md"
-                style={{ flex: 1 }}
-              >
-                Add to Cart
-              </LoadingButton>
+              <div style={{
+                display: 'flex',
+                gap: 12,
+                alignItems: 'center'
+              }}>
+                <QuantitySelector value={qty} onChange={setQty} />
+                <LoadingButton
+                  onClick={async () => {
+                    // Small delay to show loader
+                    await new Promise(resolve => setTimeout(resolve, 500))
+                    addItem({
+                      id: product.id,
+                      name: product.name,
+                      price: product.price,
+                      image: currentImage.url,
+                      size
+                    }, qty)
+                  }}
+                  loadingKey={`add-to-cart-${product.id}`}
+                  variant="primary"
+                  size="md"
+                  style={{ flex: 1 }}
+                >
+                  Add to Cart
+                </LoadingButton>
+              </div>
+              {isAuthenticated ? (
+                <button
+                  onClick={handleWishlistToggle}
+                  disabled={wishlistLoading}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    padding: '12px 20px',
+                    borderRadius: 'var(--radius-md)',
+                    border: inWishlist ? '2px solid var(--coral)' : '2px solid var(--border-medium)',
+                    background: inWishlist ? 'var(--coral)' : 'var(--white)',
+                    color: inWishlist ? 'var(--white)' : 'var(--navy)',
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: wishlistLoading ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease-out',
+                    opacity: wishlistLoading ? 0.6 : 1
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!wishlistLoading) {
+                      if (!inWishlist) {
+                        e.currentTarget.style.borderColor = 'var(--coral)'
+                        e.currentTarget.style.background = 'var(--cream)'
+                      }
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!wishlistLoading) {
+                      if (!inWishlist) {
+                        e.currentTarget.style.borderColor = 'var(--border-medium)'
+                        e.currentTarget.style.background = 'var(--white)'
+                      }
+                    }
+                  }}
+                >
+                  {inWishlist ? (
+                    <>
+                      <HeartIcon size="sm" style={{ fontSize: '16px', color: 'var(--white)' }} />
+                      Remove from Wishlist
+                    </>
+                  ) : (
+                    <>
+                      <HeartOutlineIcon size="sm" style={{ fontSize: '16px' }} />
+                      Add to Wishlist
+                    </>
+                  )}
+                </button>
+              ) : (
+                <Link
+                  to="/login"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    padding: '12px 20px',
+                    borderRadius: 'var(--radius-md)',
+                    border: '2px solid var(--border-medium)',
+                    background: 'var(--white)',
+                    color: 'var(--navy)',
+                    fontSize: 14,
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                    transition: 'all 0.2s ease-out'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--coral)'
+                    e.currentTarget.style.background = 'var(--cream)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--border-medium)'
+                    e.currentTarget.style.background = 'var(--white)'
+                  }}
+                >
+                  <HeartOutlineIcon size="sm" style={{ fontSize: '16px' }} />
+                  Sign in to Add to Wishlist
+                </Link>
+              )}
             </div>
 
             {/* Shipping Info */}
@@ -637,6 +808,26 @@ export default function ProductPage() {
           </div>
         </div>
       )}
+      <style>{`
+        @media (max-width: 767px) {
+          .product-page-grid {
+            grid-template-columns: 1fr !important;
+            gap: 24px !important;
+          }
+          .product-details {
+            padding: 0 !important;
+          }
+          .product-page-grid > div:first-child {
+            order: 1;
+          }
+          .product-page-grid > div:last-child {
+            order: 2;
+          }
+          button {
+            min-height: 44px !important;
+          }
+        }
+      `}</style>
     </section>
   )
 }

@@ -13,7 +13,7 @@ export default function CategoryGrid() {
           </p>
         </div>
         
-        <div style={{
+        <div className="category-grid" style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
           gap: 24
@@ -94,6 +94,20 @@ export default function CategoryGrid() {
           ))}
         </div>
       </div>
+      <style>{`
+        @media (max-width: 767px) {
+          .category-grid {
+            grid-template-columns: 1fr !important;
+            gap: 16px !important;
+          }
+        }
+        @media (min-width: 768px) and (max-width: 1023px) {
+          .category-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 20px !important;
+          }
+        }
+      `}</style>
     </section>
   )
 }

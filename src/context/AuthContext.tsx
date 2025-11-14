@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { syncCartOnLogin, clearLocalCart } from '@utils/cartSync';
 import { CartItem } from '@context/CartContext';
+import { getApiUrl } from '@utils/apiUrl';
 
 interface User {
   id: string;
@@ -20,8 +21,7 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_URL = getApiUrl();
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -66,7 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return false;
     } catch (error) {
       if (error instanceof TypeError && error.message.includes('fetch')) {
-        console.error('Network error: Backend server may not be running on http://localhost:3001');
+        console.error('Network error: Unable to connect to server');
       } else {
         console.error('Token verification error:', error);
       }

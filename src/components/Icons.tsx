@@ -9,9 +9,25 @@ import {
   faTshirt,
   faShirt,
   faUser,
-  faBangladeshiTakaSign
+  faBangladeshiTakaSign,
+  faBars,
+  faXmark
 } from '@fortawesome/free-solid-svg-icons'
-import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons'
+import { FaHome, FaRegHeart } from 'react-icons/fa'
+import { GiCardboardBox } from 'react-icons/gi'
+import { MdCategory } from 'react-icons/md'
+
+// Helper function to convert FontAwesome size strings to pixel values for react-icons
+const getSize = (size: string): number => {
+  const sizeMap: Record<string, number> = {
+    '1x': 16,
+    'lg': 20,
+    '2x': 32,
+    '3x': 48,
+    '4x': 64
+  }
+  return sizeMap[size] || 16
+}
 
 export const CartIcon = ({ size = '1x', style }: { size?: string; style?: React.CSSProperties }) => (
   <FontAwesomeIcon icon={faShoppingCart} size={size as any} style={style as any} />
@@ -22,7 +38,7 @@ export const HeartIcon = ({ size = '1x', style }: { size?: string; style?: React
 )
 
 export const HeartOutlineIcon = ({ size = '1x', style }: { size?: string; style?: React.CSSProperties }) => (
-  <FontAwesomeIcon icon={faHeartRegular} size={size as any} style={{ opacity: 0.7, ...style } as any} />
+  <FaRegHeart size={getSize(size)} style={{ opacity: 0.7, ...style }} />
 )
 
 export const StarIcon = ({ size = '1x', style }: { size?: string; style?: React.CSSProperties }) => (
@@ -51,6 +67,26 @@ export const PersonIcon = ({ size = '1x', style }: { size?: string; style?: Reac
 
 export const TakaIcon = ({ size = '1x', style }: { size?: string; style?: React.CSSProperties }) => (
   <FontAwesomeIcon icon={faBangladeshiTakaSign} size={size as any} style={style as any} />
+)
+
+export const MenuIcon = ({ size = '1x', style }: { size?: string; style?: React.CSSProperties }) => (
+  <FontAwesomeIcon icon={faBars} size={size as any} style={style as any} />
+)
+
+export const CloseIcon = ({ size = '1x', style }: { size?: string; style?: React.CSSProperties }) => (
+  <FontAwesomeIcon icon={faXmark} size={size as any} style={style as any} />
+)
+
+export const HomeIcon = ({ size = '1x', style }: { size?: string; style?: React.CSSProperties }) => (
+  <FaHome size={getSize(size)} style={style} />
+)
+
+export const ProductsIcon = ({ size = '1x', style }: { size?: string; style?: React.CSSProperties }) => (
+  <GiCardboardBox size={getSize(size)} style={style} />
+)
+
+export const CategoriesIcon = ({ size = '1x', style }: { size?: string; style?: React.CSSProperties }) => (
+  <MdCategory size={getSize(size)} style={style} />
 )
 
 const categoryIcons: Record<string, any> = {

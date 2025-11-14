@@ -1,5 +1,5 @@
 import express from 'express';
-import { getSavedCart, saveCart } from '../utils/users.js';
+import { getSavedCart, saveCart, getWishlist, addToWishlist, removeFromWishlist, isInWishlist } from '../utils/users.js';
 import jwt from 'jsonwebtoken';
 
 const router = express.Router();
@@ -47,6 +47,74 @@ router.post('/:id/cart', verifyToken, (req, res) => {
   } catch (error) {
     console.error('Error saving cart:', error);
     res.status(500).json({ error: error.message || 'Failed to save cart' });
+  }
+});
+
+// Get wishlist (requires auth)
+router.get('/:id/wishlist', verifyToken, (req, res) => {
+  try {
+    if (req.params.id !== req.userId) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+    
+    const wishlist = getWishlist(req.params.id);
+    res.json({ wishlist });
+  } catch (error) {
+    console.error('Error fetching wishlist:', error);
+    res.status(500).json({ error: 'Failed to fetch wishlist' });
+  }
+});
+
+// Add to wishlist (requires auth)
+router.post('/:id/wishlist', verifyToken, (req, res) => {
+  try {
+    if (req.params.id !== req.userId) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const { productId } = req.body;
+    if (!productId) {
+      return res.status(400).json({ error: 'Product ID is required' });
+    }
+
+    console.log('Adding to wishlist:', { userId: req.params.id, productId });
+    const wishlist = addToWishlist(req.params.id, productId);
+    console.log('Wishlist after add:', wishlist);
+    console.log('Response type:', typeof wishlist, 'Is array:', Array.isArray(wishlist));
+    res.json({ wishlist });
+  } catch (error) {
+    console.error('Error adding to wishlist:', error);
+    res.status(500).json({ error: error.message || 'Failed to add to wishlist' });
+  }
+});
+
+// Remove from wishlist (requires auth)
+router.delete('/:id/wishlist/:productId', verifyToken, (req, res) => {
+  try {
+    if (req.params.id !== req.userId) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+    
+    const wishlist = removeFromWishlist(req.params.id, req.params.productId);
+    res.json({ wishlist });
+  } catch (error) {
+    console.error('Error removing from wishlist:', error);
+    res.status(500).json({ error: error.message || 'Failed to remove from wishlist' });
+  }
+});
+
+// Check if product is in wishlist (requires auth)
+router.get('/:id/wishlist/:productId', verifyToken, (req, res) => {
+  try {
+    if (req.params.id !== req.userId) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+    
+    const inWishlist = isInWishlist(req.params.id, req.params.productId);
+    res.json({ inWishlist });
+  } catch (error) {
+    console.error('Error checking wishlist:', error);
+    res.status(500).json({ error: 'Failed to check wishlist' });
   }
 });
 
