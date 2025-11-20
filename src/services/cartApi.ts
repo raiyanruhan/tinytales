@@ -1,5 +1,6 @@
 import { getNetworkErrorMessage } from '@utils/apiError';
 import { getApiUrl } from '@utils/apiUrl';
+import { secureFetch } from '@utils/secureStorage';
 
 const API_URL = getApiUrl();
 
@@ -13,17 +14,10 @@ export interface CartItem {
 }
 
 async function fetchWithAuth(url: string, options: RequestInit = {}) {
-  const token = localStorage.getItem('authToken');
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` }),
-    ...options.headers as HeadersInit,
-  };
-
   try {
-    const response = await fetch(url, {
+    const response = await secureFetch(url, {
       ...options,
-      headers,
+      method: options.method || 'GET',
     });
 
     if (!response.ok) {

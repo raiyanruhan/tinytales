@@ -5,6 +5,8 @@ import { useAuth } from '@context/AuthContext';
 import { createOrder, OrderAddress } from '@services/orderApi';
 import LocationSelector from '@components/LocationSelector';
 import LoadingButton from '@components/LoadingButton';
+import { sanitizeText, sanitizeObject } from '@utils/sanitize';
+import { toast } from '@utils/toast';
 
 export default function CheckoutPage() {
   const { state, totalPrice, clear } = useCart();
@@ -52,18 +54,32 @@ export default function CheckoutPage() {
         return;
       }
 
+      // Sanitize all user inputs
+      const sanitizedAddress = sanitizeObject({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        mobileNumber: mobileNumber.trim(),
+        streetAddress: streetAddress.trim(),
+        country: 'Bangladesh',
+        regionState: regionState.trim(),
+        cityArea: cityArea.trim(),
+        zipPostalCode: zipPostalCode.trim(),
+        sameAddress,
+        deliveryInstructions: deliveryInstructions.trim()
+      });
+
       // Prepare address
       const address: OrderAddress = {
-        firstName,
-        lastName,
-        mobileNumber,
-        streetAddress,
-        country: 'Bangladesh',
-        regionState,
-        cityArea,
-        zipPostalCode,
-        sameAddress,
-        deliveryInstructions
+        firstName: sanitizedAddress.firstName,
+        lastName: sanitizedAddress.lastName,
+        mobileNumber: sanitizedAddress.mobileNumber,
+        streetAddress: sanitizedAddress.streetAddress,
+        country: sanitizedAddress.country,
+        regionState: sanitizedAddress.regionState,
+        cityArea: sanitizedAddress.cityArea,
+        zipPostalCode: sanitizedAddress.zipPostalCode,
+        sameAddress: sanitizedAddress.sameAddress,
+        deliveryInstructions: sanitizedAddress.deliveryInstructions
       };
 
       // Prepare order items
@@ -77,9 +93,9 @@ export default function CheckoutPage() {
         image: item.image
       }));
 
-      // Create order
+      // Create order with sanitized email
       const order = await createOrder({
-        email: email.toLowerCase(),
+        email: sanitizeText(email.toLowerCase().trim()),
         userId: user?.id,
         items,
         shipping: {
@@ -94,6 +110,12 @@ export default function CheckoutPage() {
 
       // Clear cart
       clear();
+      
+      // Show success toast
+      toast.success('Order placed successfully!', {
+        description: `Order #${order.orderNumber} has been confirmed`,
+        duration: 5000,
+      });
       
       // Show success
       setOrderNumber(order.orderNumber);

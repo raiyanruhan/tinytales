@@ -124,27 +124,104 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const addItem = (item: Omit<CartItem, 'quantity'>, quantity = 1) => {
+    // Optimistic update - update UI immediately
     dispatch({ type: 'add', item, quantity })
+    
+    // Show toast notification
     toast.success('Product added to cart', {
       description: `${item.name}${item.size ? ` (${item.size})` : ''} - ${quantity} ${quantity === 1 ? 'item' : 'items'}`,
     })
+    
+    // Save to server in background (non-blocking)
+    const storedUser = localStorage.getItem('authUser');
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        const updatedItems = [...state.items];
+        const idx = updatedItems.findIndex(i => i.id === item.id && i.size === item.size);
+        if (idx >= 0) {
+          updatedItems[idx] = { ...updatedItems[idx], quantity: updatedItems[idx].quantity + quantity };
+        } else {
+          updatedItems.push({ ...item, quantity });
+        }
+        saveCartToServer(user.id, updatedItems).catch(err => {
+          console.error('Failed to save cart to server:', err);
+          // Could show error toast here, but optimistic update already happened
+        });
+      } catch {
+        // Ignore parse errors
+      }
+    }
   }
+  
   const removeItem = (id: string, size?: string) => {
     const item = state.items.find(i => i.id === id && i.size === size)
+    // Optimistic update - update UI immediately
     dispatch({ type: 'remove', id, size })
+    
     if (item) {
       toast.info('Product removed from cart', {
         description: `${item.name}${item.size ? ` (${item.size})` : ''}`,
       })
+      
+      // Save to server in background
+      const storedUser = localStorage.getItem('authUser');
+      if (storedUser) {
+        try {
+          const user = JSON.parse(storedUser);
+          const updatedItems = state.items.filter(i => !(i.id === id && i.size === size));
+          saveCartToServer(user.id, updatedItems).catch(err => {
+            console.error('Failed to save cart to server:', err);
+          });
+        } catch {
+          // Ignore parse errors
+        }
+      }
     }
   }
-  const setQuantity = (id: string, quantity: number, size?: string) => dispatch({ type: 'setQty', id, quantity, size })
+  
+  const setQuantity = (id: string, quantity: number, size?: string) => {
+    // Optimistic update
+    dispatch({ type: 'setQty', id, quantity, size })
+    
+    // Save to server in background
+    const storedUser = localStorage.getItem('authUser');
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        const updatedItems = state.items.map(i => 
+          i.id === id && i.size === size ? { ...i, quantity } : i
+        );
+        saveCartToServer(user.id, updatedItems).catch(err => {
+          console.error('Failed to save cart to server:', err);
+        });
+      } catch {
+        // Ignore parse errors
+      }
+    }
+  }
+  
   const clear = () => {
+    // Optimistic update
     dispatch({ type: 'clear' });
     localStorage.removeItem('cart');
+    
     toast.info('Cart cleared', {
       description: 'All items have been removed from your cart',
     })
+    
+    // Save to server in background
+    const storedUser = localStorage.getItem('authUser');
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        saveCartToServer(user.id, []).catch(err => {
+          console.error('Failed to save cart to server:', err);
+        });
+      } catch {
+        // Ignore parse errors
+      }
+    }
   }
 
   // Add action to set items directly (for cart merge)

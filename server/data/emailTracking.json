@@ -1,0 +1,17 @@
+[
+  {
+    "id": "email_1763627153496_5o70xoh5v",
+    "to": "raiyanbinrashid0@gmail.com",
+    "templateType": "order_status",
+    "subject": "Order Status Update - Order #TT-1763626135370-35",
+    "status": "queued",
+    "queuedAt": "2025-11-20T08:25:53.496Z",
+    "deliveredAt": null,
+    "failedAt": null,
+    "error": null,
+    "messageId": null,
+    "response": null,
+    "attempts": 0,
+    "metadata": {}
+  }
+]

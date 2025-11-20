@@ -5,7 +5,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TinyTales • Baby Clothing</title>
     <meta name="description" content="TinyTales — delightful baby clothing with a playful shopping experience" />
+    <meta name="keywords" content="baby clothes, organic baby clothing, newborn outfits, toddler wear, TinyTales" />
+    <meta name="author" content="TinyTales" />
+    <link rel="canonical" href="https://www.tinytalesearth.com/" />
     <link rel="icon" href="/favicon.ico" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="TinyTales • Baby Clothing" />
+    <meta property="og:description" content="Delightful baby clothing with a playful shopping experience crafted for tiny families." />
+    <meta property="og:url" content="https://www.tinytalesearth.com/" />
+    <meta property="og:site_name" content="TinyTales" />
+    <meta property="og:image" content="https://www.tinytalesearth.com/og-image.png" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="TinyTales • Baby Clothing" />
+    <meta name="twitter:description" content="Delightful baby clothing with a playful shopping experience crafted for tiny families." />
+    <meta name="twitter:image" content="https://www.tinytalesearth.com/og-image.png" />
+    
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com;
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      font-src 'self' https://fonts.gstatic.com data:;
+      img-src 'self' data: https: blob: http://localhost:3001;
+      connect-src 'self' http://localhost:3001 https://api.tinytalesearth.com https://res.cloudinary.com;
+      frame-src 'none';
+      object-src 'none';
+      base-uri 'self';
+      form-action 'self';
+    " />
+    
+    <!-- Additional Security Headers (will be set by server, but good to have here too) -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <!-- Note: X-Frame-Options should be set via HTTP headers, not meta tags -->
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "TinyTales",
+        "url": "https://www.tinytalesearth.com/",
+        "logo": "https://www.tinytalesearth.com/logo.png",
+        "sameAs": [
+          "https://www.facebook.com/tinytalesearth",
+          "https://www.instagram.com/tinytalesearth"
+        ],
+        "description": "TinyTales crafts delightful, comfortable clothing for babies and toddlers with playful designs and thoughtful details.",
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "contactType": "customer service",
+          "email": "hello@tinytalesearth.com"
+        }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

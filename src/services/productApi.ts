@@ -31,18 +31,13 @@ export interface Product {
   updatedAt?: string;
 }
 
-async function fetchWithAuth(url: string, options: RequestInit = {}) {
-  const token = localStorage.getItem('authToken');
-  const headers = {
-    'Content-Type': 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` }),
-    ...options.headers,
-  };
+import { secureFetch } from '@utils/secureStorage';
 
+async function fetchWithAuth(url: string, options: RequestInit = {}) {
   try {
-    const response = await fetch(url, {
+    const response = await secureFetch(url, {
       ...options,
-      headers,
+      method: options.method || 'GET',
     });
 
     if (!response.ok) {
@@ -60,17 +55,21 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
 }
 
 async function fetchFormData(url: string, formData: FormData) {
-  const token = localStorage.getItem('authToken');
+  const { getToken } = await import('@utils/secureStorage');
+  const { addCsrfTokenToHeaders } = await import('@utils/csrf');
+  const token = getToken();
   const headers: HeadersInit = {};
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
+  const headersWithCsrf = await addCsrfTokenToHeaders(headers);
 
   try {
     const response = await fetch(url, {
       method: 'POST',
-      headers,
+      headers: headersWithCsrf,
       body: formData,
+      credentials: 'include', // Include httpOnly cookies
     });
 
     if (!response.ok) {

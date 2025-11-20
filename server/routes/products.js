@@ -1,6 +1,7 @@
 import express from 'express';
 import { getAllProducts, getProductById, saveProduct, deleteProduct, reorderProducts } from '../utils/products.js';
 import { adminAuth } from '../middleware/adminAuth.js';
+import { verifyCSRF } from '../middleware/security.js';
 
 const router = express.Router();
 
@@ -30,7 +31,7 @@ router.get('/:id', (req, res) => {
 });
 
 // Create product (admin only)
-router.post('/', adminAuth, (req, res) => {
+router.post('/', verifyCSRF, adminAuth, (req, res) => {
   try {
     const {
       name,
@@ -89,7 +90,7 @@ router.post('/', adminAuth, (req, res) => {
 });
 
 // Update product (admin only)
-router.put('/:id', adminAuth, (req, res) => {
+router.put('/:id', verifyCSRF, adminAuth, (req, res) => {
   try {
     const product = getProductById(req.params.id);
     if (!product) {
@@ -138,7 +139,7 @@ router.put('/:id', adminAuth, (req, res) => {
 });
 
 // Delete product (admin only)
-router.delete('/:id', adminAuth, (req, res) => {
+router.delete('/:id', verifyCSRF, adminAuth, (req, res) => {
   try {
     const product = getProductById(req.params.id);
     if (!product) {
@@ -158,7 +159,7 @@ router.delete('/:id', adminAuth, (req, res) => {
 });
 
 // Reorder products (admin only)
-router.post('/reorder', adminAuth, (req, res) => {
+router.post('/reorder', verifyCSRF, adminAuth, (req, res) => {
   try {
     const { products: productsWithOrder } = req.body;
 

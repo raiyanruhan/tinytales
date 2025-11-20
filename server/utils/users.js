@@ -36,14 +36,9 @@ function writeUsers(users) {
     initUsersFile();
     const jsonData = JSON.stringify(users, null, 2);
     writeFileSync(USERS_FILE, jsonData, 'utf8');
-    console.log('Users file written successfully. Total users:', users.length);
     // Verify the write by reading back
     const verify = readFileSync(USERS_FILE, 'utf8');
-    const parsed = JSON.parse(verify);
-    console.log('Verification - File contains', parsed.length, 'users');
-    if (parsed.length > 0 && parsed[0].wishlist !== undefined) {
-      console.log('Verification - First user wishlist:', parsed[0].wishlist);
-    }
+    JSON.parse(verify);
   } catch (error) {
     console.error('Error writing users:', error);
     throw error;
@@ -135,45 +130,29 @@ export function getWishlist(userId) {
 
 // Add product to wishlist
 export function addToWishlist(userId, productId) {
-  console.log('addToWishlist called with:', { userId, productId });
-
   const user = getUserById(userId);
   if (!user) {
     throw new Error('User not found');
   }
-
-  console.log('User found:', { id: user.id, wishlist: user.wishlist });
 
   // Ensure wishlist exists
   if (!user.wishlist) {
     user.wishlist = [];
   }
 
-  console.log('User wishlist before add:', user.wishlist);
-
   // Check if product already in wishlist
   if (!user.wishlist.includes(productId)) {
     user.wishlist.push(productId);
     user.updatedAt = new Date().toISOString();
 
-    console.log('User wishlist after add:', user.wishlist);
-
     // Save the entire updated user object
-    console.log('Saving updated user:', user);
-    const savedUser = saveUser(user);
-    console.log('saveUser returned:', savedUser);
+    saveUser(user);
 
     // Verify the save worked
     const verifyUser = getUserById(userId);
-    console.log('Verification - User from file:', verifyUser);
     if (!verifyUser || !verifyUser.wishlist || !verifyUser.wishlist.includes(productId)) {
-      console.error('Wishlist save verification failed!');
       throw new Error('Failed to save wishlist to database');
     }
-
-    console.log('SUCCESS: Wishlist saved!');
-  } else {
-    console.log('Product already in wishlist');
   }
 
   return user.wishlist;
@@ -204,5 +183,135 @@ export function isInWishlist(userId, productId) {
     return false;
   }
   return user.wishlist.includes(productId);
+}
+
+// Update user role
+export function updateUserRole(userId, role) {
+  const user = getUserById(userId);
+  if (!user) {
+    throw new Error('User not found');
+  }
+  user.role = role;
+  user.updatedAt = new Date().toISOString();
+  saveUser(user);
+  return user;
+}
+
+// Save refresh token for user
+export function saveRefreshToken(userId, refreshToken) {
+  const user = getUserById(userId);
+  if (!user) {
+    throw new Error('User not found');
+  }
+  user.refreshToken = refreshToken;
+  user.updatedAt = new Date().toISOString();
+  saveUser(user);
+  return user;
+}
+
+// Get refresh token for user
+export function getRefreshToken(userId) {
+  const user = getUserById(userId);
+  return user?.refreshToken || null;
+}
+
+// Clear refresh token
+export function clearRefreshToken(userId) {
+  const user = getUserById(userId);
+  if (!user) {
+    return;
+  }
+  user.refreshToken = null;
+  user.updatedAt = new Date().toISOString();
+  saveUser(user);
+}
+
+// Increment failed login attempts
+export function incrementFailedLoginAttempts(userId) {
+  const user = getUserById(userId);
+  if (!user) {
+    return null;
+  }
+  
+  const maxAttempts = 5;
+  const lockoutDuration = 30 * 60 * 1000; // 30 minutes
+  
+  user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1;
+  
+  if (user.failedLoginAttempts >= maxAttempts) {
+    user.lockedUntil = new Date(Date.now() + lockoutDuration).toISOString();
+  }
+  
+  user.updatedAt = new Date().toISOString();
+  saveUser(user);
+  return user;
+}
+
+// Reset failed login attempts (on successful login)
+export function resetFailedLoginAttempts(userId) {
+  const user = getUserById(userId);
+  if (!user) {
+    return;
+  }
+  user.failedLoginAttempts = 0;
+  user.lockedUntil = null;
+  user.updatedAt = new Date().toISOString();
+  saveUser(user);
+}
+
+// Check if account is locked
+export function isAccountLocked(user) {
+  if (!user.lockedUntil) {
+    return false;
+  }
+  
+  const lockedUntil = new Date(user.lockedUntil);
+  const now = new Date();
+  
+  if (now > lockedUntil) {
+    // Lockout expired, reset it
+    user.lockedUntil = null;
+    user.failedLoginAttempts = 0;
+    user.updatedAt = new Date().toISOString();
+    saveUser(user);
+    return false;
+  }
+  
+  return true;
+}
+
+// Set password reset token
+export function setPasswordResetToken(userId, token, expiry) {
+  const user = getUserById(userId);
+  if (!user) {
+    throw new Error('User not found');
+  }
+  user.passwordResetToken = token;
+  user.passwordResetExpiry = expiry;
+  user.updatedAt = new Date().toISOString();
+  saveUser(user);
+  return user;
+}
+
+// Get user by password reset token
+export function getUserByPasswordResetToken(token) {
+  const users = readUsers();
+  return users.find(user => 
+    user.passwordResetToken === token && 
+    user.passwordResetExpiry &&
+    new Date(user.passwordResetExpiry) > new Date()
+  );
+}
+
+// Clear password reset token
+export function clearPasswordResetToken(userId) {
+  const user = getUserById(userId);
+  if (!user) {
+    return;
+  }
+  user.passwordResetToken = null;
+  user.passwordResetExpiry = null;
+  user.updatedAt = new Date().toISOString();
+  saveUser(user);
 }
 

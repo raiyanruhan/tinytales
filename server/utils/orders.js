@@ -24,12 +24,12 @@ const STATUS_ORDER = {
 
 // Valid status transitions - allows certain special transitions
 const VALID_TRANSITIONS = {
-  // Can go from approved to shipped/delivered (forward progression)
-  'approved': ['shipped', 'delivered', 'refused', 'cancelled'],
+  // Can go from approved to shipped/delivered (forward progression) or back to processing (admin override)
+  'approved': ['shipped', 'delivered', 'refused', 'cancelled', 'awaiting_processing', 'order_confirmation'],
   // Can go from refused back to processing (admin override)
   'refused': ['awaiting_processing', 'order_confirmation', 'approved', 'cancelled'],
   // Can go from order_confirmation to approved
-  'order_confirmation': ['approved', 'shipped', 'delivered', 'refused', 'cancelled'],
+  'order_confirmation': ['approved', 'shipped', 'delivered', 'refused', 'cancelled', 'awaiting_processing'],
   // Can go from awaiting_processing to approved or order_confirmation
   'awaiting_processing': ['order_confirmation', 'approved', 'shipped', 'delivered', 'refused', 'cancelled']
 };
@@ -164,6 +164,19 @@ export function updateOrderStatus(id, status, adminStatus, shipperName) {
   // Otherwise, it's an invalid backward transition
   else {
     throw new Error(`Cannot change status from "${order.status}" to "${status}". Status can only move forward in the order flow.`);
+  }
+  
+  // If reverting from approved to a previous status, restore stock
+  if (order.status === 'approved' && status !== 'approved' && 
+      (status === 'awaiting_processing' || status === 'order_confirmation' || status === 'refused' || status === 'cancelled')) {
+    try {
+      for (const item of order.items) {
+        increaseStock(item.productId, item.size, item.color, item.quantity);
+      }
+    } catch (error) {
+      console.error('Error restoring stock when reverting approved order:', error);
+      // Don't throw - allow status change even if stock restoration fails
+    }
   }
   
   // Track if status actually changed (for email sending)

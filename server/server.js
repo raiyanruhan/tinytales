@@ -9,6 +9,15 @@ import locationRoutes from './routes/locations.js';
 import userRoutes from './routes/users.js';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import {
+  helmetMiddleware,
+  generalRateLimiter,
+  authRateLimiter,
+  stateChangeRateLimiter,
+  cookieParserMiddleware,
+  generateCSRFToken,
+  sanitizeBody
+} from './middleware/security.js';
 
 dotenv.config();
 
@@ -18,24 +27,38 @@ const __dirname = dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Middleware
+// Security Middleware - Applied early
+app.use(helmetMiddleware);
+app.use(cookieParserMiddleware);
+app.use(sanitizeBody);
+
+// CORS configuration
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? ['https://www.tinytalesearth.com', 'https://tinytalesearth.com', 'tinytales-seven.vercel.app'] 
     : 'http://localhost:5173',
-  credentials: true
+  credentials: true,
+  exposedHeaders: ['X-CSRF-Token'] // Expose CSRF token header to frontend
 }));
 app.use(express.json());
+
+// General rate limiting
+app.use(generalRateLimiter);
+
+// CSRF token generation for GET requests
+app.get('*', generateCSRFToken);
 
 // Serve static files from uploads directory
 app.use('/uploads', express.static(join(__dirname, 'uploads')));
 
-// Routes
-app.use('/api/auth', authRoutes);
+// Routes with security middleware
+app.use('/api/auth', authRateLimiter, authRoutes);
 app.use('/api/products', productRoutes);
-app.use('/api/upload', uploadRoutes);
+app.use('/api/upload', stateChangeRateLimiter, uploadRoutes);
+// Orders: Only apply rate limiting to state-changing operations (handled in middleware)
 app.use('/api/orders', orderRoutes);
 app.use('/api/locations', locationRoutes);
+// Users: Only apply rate limiting to state-changing operations (handled in middleware)
 app.use('/api/users', userRoutes);
 
 // Root route for cPanel health check

@@ -4,6 +4,8 @@ import { useAuth } from '@context/AuthContext';
 import { useCart } from '@context/CartContext';
 import { getNetworkErrorMessage } from '@utils/apiError';
 import { getApiUrl } from '@utils/apiUrl';
+import { sanitizeText } from '@utils/sanitize';
+import { addCsrfTokenToHeaders } from '@utils/csrf';
 
 const API_URL = getApiUrl();
 
@@ -21,23 +23,70 @@ export default function Login() {
     setError('');
     setLoading(true);
 
+    // Sanitize inputs
+    const sanitizedEmail = sanitizeText(email.toLowerCase().trim());
+    const sanitizedPassword = password; // Don't sanitize password, just validate
+
     try {
+      // Ensure CSRF token is available before making request
+      const { getCsrfToken, refreshCsrfToken } = await import('@utils/csrf')
+      let csrfToken = await getCsrfToken()
+      
+      if (!csrfToken) {
+        console.log('Fetching CSRF token before login...')
+        csrfToken = await refreshCsrfToken()
+        if (!csrfToken) {
+          setError('Unable to establish secure connection. Please refresh the page and try again.')
+          setLoading(false)
+          return
+        }
+      }
+
+      const headers = await addCsrfTokenToHeaders({
+        'Content-Type': 'application/json',
+      });
+
       const response = await fetch(`${API_URL}/auth/signin`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
+        headers,
+        body: JSON.stringify({ email: sanitizedEmail, password: sanitizedPassword }),
+        credentials: 'include', // Include httpOnly cookies
       });
+      
+      // Validate CSRF response - if it fails, try refreshing token and retry once
+      const { validateCsrfResponse } = await import('@utils/csrf')
+      let finalResponse = response
+      
+      try {
+        await validateCsrfResponse(response)
+      } catch (csrfError) {
+        if (csrfError instanceof Error && csrfError.message.includes('CSRF')) {
+          // Token might be expired, refresh and retry once
+          console.log('CSRF validation failed, refreshing token and retrying...')
+          await refreshCsrfToken()
+          const retryHeaders = await addCsrfTokenToHeaders({
+            'Content-Type': 'application/json',
+          })
+          finalResponse = await fetch(`${API_URL}/auth/signin`, {
+            method: 'POST',
+            headers: retryHeaders,
+            body: JSON.stringify({ email: sanitizedEmail, password: sanitizedPassword }),
+            credentials: 'include',
+          })
+          await validateCsrfResponse(finalResponse)
+        } else {
+          throw csrfError
+        }
+      }
 
       let data;
       try {
-        data = await response.json();
+        data = await finalResponse.json();
       } catch (jsonError) {
-        throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        throw new Error(`Server error: ${finalResponse.status} ${finalResponse.statusText}`);
       }
 
-      if (!response.ok) {
+      if (!finalResponse.ok) {
         if (data.needsVerification) {
           // Redirect to verification page
           navigate('/verify-email', { state: { userId: data.userId } });
@@ -48,7 +97,10 @@ export default function Login() {
       }
 
       // Success - pass cart for sync
-      await login(data.token, data.user, cartState.items);
+      // Backend returns accessToken (not token) and refreshToken
+      const token = data.accessToken || data.token
+      const refreshToken = data.refreshToken
+      await login(token, data.user, cartState.items, refreshToken);
       navigate('/');
     } catch (err) {
       if (err instanceof TypeError && err.message.includes('fetch')) {

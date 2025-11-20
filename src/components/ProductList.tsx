@@ -261,7 +261,6 @@ function SortableProductItem({
           type="number"
           value={orderValue}
           onChange={(e) => setOrderValue(e.target.value)}
-          onBlur={handleOrderSubmit}
           placeholder="Order"
           style={{
             width: '70px',
@@ -279,6 +278,7 @@ function SortableProductItem({
           onBlur={(e) => {
             e.target.style.borderColor = '#d1d5db';
             e.target.style.boxShadow = 'none';
+            handleOrderSubmit(e as unknown as React.FormEvent);
           }}
         />
       </form>

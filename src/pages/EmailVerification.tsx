@@ -4,6 +4,7 @@ import { useAuth } from '@context/AuthContext';
 import { useCart } from '@context/CartContext';
 import { getNetworkErrorMessage } from '@utils/apiError';
 import { getApiUrl } from '@utils/apiUrl';
+import { addCsrfTokenToHeaders, validateCsrfResponse } from '@utils/csrf';
 
 const API_URL = getApiUrl();
 
@@ -71,14 +72,18 @@ export default function EmailVerification() {
     setLoading(true);
 
     try {
-      const response = await fetch(`${API_URL}/auth/verify-email`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userId, otp: otpString }),
+      const headers = await addCsrfTokenToHeaders({
+        'Content-Type': 'application/json',
       });
 
+      const response = await fetch(`${API_URL}/auth/verify-email`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ userId, otp: otpString }),
+        credentials: 'include',
+      });
+
+      await validateCsrfResponse(response);
       const data = await response.json();
 
       if (!response.ok) {
@@ -87,7 +92,10 @@ export default function EmailVerification() {
       }
 
       // Success - login and redirect (pass cart for sync)
-      await login(data.token, data.user, cartState.items);
+      // Backend returns accessToken (not token)
+      const token = data.accessToken || data.token;
+      const refreshToken = data.refreshToken;
+      await login(token, data.user, cartState.items, refreshToken);
       navigate('/');
     } catch (err) {
       if (err instanceof TypeError && err.message.includes('fetch')) {
@@ -105,13 +113,18 @@ export default function EmailVerification() {
     setError('');
 
     try {
+      const headers = await addCsrfTokenToHeaders({
+        'Content-Type': 'application/json',
+      });
+
       const response = await fetch(`${API_URL}/auth/resend-code`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({ userId }),
+        credentials: 'include',
       });
+
+      await validateCsrfResponse(response);
 
       const data = await response.json();
 

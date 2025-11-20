@@ -1,5 +1,6 @@
 import { getNetworkErrorMessage } from '@utils/apiError';
 import { getApiUrl } from '@utils/apiUrl';
+import { secureFetch } from '@utils/secureStorage';
 
 const API_URL = getApiUrl();
 
@@ -56,30 +57,33 @@ export interface LocationData {
 }
 
 async function fetchWithAuth(url: string, options: RequestInit = {}) {
-  const token = localStorage.getItem('authToken');
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` }),
-    ...options.headers as HeadersInit,
-  };
-
   try {
-    const response = await fetch(url, {
+    const response = await secureFetch(url, {
       ...options,
-      headers,
+      method: options.method || 'GET',
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'Request failed' }));
-      throw new Error(error.error || `Request failed with status ${response.status}`);
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch {
+        errorData = { error: `Request failed with status ${response.status}` };
+      }
+      throw new Error(errorData.error || `Request failed with status ${response.status}`);
     }
 
-    return response.json();
+    const data = await response.json();
+    return data;
   } catch (error) {
     if (error instanceof TypeError && error.message.includes('fetch')) {
       throw new Error(getNetworkErrorMessage());
     }
-    throw error;
+    // Re-throw the error with its message
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('An unknown error occurred');
   }
 }
 

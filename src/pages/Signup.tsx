@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getNetworkErrorMessage } from '@utils/apiError';
 import { getApiUrl } from '@utils/apiUrl';
+import { sanitizeText } from '@utils/sanitize';
+import { addCsrfTokenToHeaders } from '@utils/csrf';
 
 const API_URL = getApiUrl();
 
@@ -30,14 +32,25 @@ export default function Signup() {
 
     setLoading(true);
 
+    // Sanitize inputs
+    const sanitizedEmail = sanitizeText(email.toLowerCase().trim());
+    const sanitizedPassword = password; // Don't sanitize password, just validate
+
     try {
+      const headers = await addCsrfTokenToHeaders({
+        'Content-Type': 'application/json',
+      });
+
       const response = await fetch(`${API_URL}/auth/signup`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
+        headers,
+        body: JSON.stringify({ email: sanitizedEmail, password: sanitizedPassword }),
+        credentials: 'include', // Include httpOnly cookies
       });
+      
+      // Validate CSRF response
+      const { validateCsrfResponse } = await import('@utils/csrf')
+      await validateCsrfResponse(response)
 
       let data;
       try {

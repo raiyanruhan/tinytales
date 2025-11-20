@@ -175,24 +175,19 @@ export default function ProductPage() {
           })
         }
       } else {
-        console.log('Adding to wishlist:', { userId: user.id, productId: product.id })
         const result = await addToWishlist(user.id, product.id)
-        console.log('Wishlist API result:', result, 'Type:', typeof result, 'Is array:', Array.isArray(result))
         // Verify the product was actually added
         if (result && Array.isArray(result) && result.includes(product.id)) {
           setInWishlist(true)
           toast.success('Added to wishlist', {
             description: product.name,
           })
-          console.log('Wishlist successfully added. Setting UI to true.')
           // Double-check by re-fetching status
           setTimeout(async () => {
             const status = await checkInWishlist(user.id, product.id)
-            console.log('Double-check wishlist status:', status)
             setInWishlist(status)
           }, 500)
         } else {
-          console.error('Wishlist result validation failed:', { result, productId: product.id })
           // Re-check status if something went wrong
           await checkWishlistStatus()
           toast.error('Failed to add to wishlist', {

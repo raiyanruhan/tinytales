@@ -34,13 +34,26 @@ export default function AccountPage() {
       setError('');
 
       // Load orders
-      const ordersData = await getOrdersByEmail(user.email);
-      setOrders(ordersData);
+      try {
+        const ordersData = await getOrdersByEmail(user.email);
+        setOrders(ordersData || []);
+      } catch (orderError) {
+        console.error('Error loading orders:', orderError);
+        setOrders([]);
+        // Don't set error for orders, just log it
+      }
 
       // Load saved cart
-      const cart = await getSavedCart(user.id);
-      setSavedCart(cart);
+      try {
+        const cart = await getSavedCart(user.id);
+        setSavedCart(cart);
+      } catch (cartError) {
+        console.error('Error loading cart:', cartError);
+        setSavedCart(null);
+        // Don't set error for cart, just log it
+      }
     } catch (err) {
+      console.error('Error loading account data:', err);
       setError(err instanceof Error ? err.message : 'Failed to load account data');
     } finally {
       setLoading(false);
@@ -209,8 +222,10 @@ export default function AccountPage() {
                   <div>
                     <h2 style={{ marginBottom: 24 }}>Order History</h2>
                     {loading ? (
-                      <div style={{ textAlign: 'center', padding: 48 }}>
-                        <p>Loading orders...</p>
+                      <div style={{ display: 'grid', gap: '16px' }}>
+                        {Array.from({ length: 3 }).map((_, i) => (
+                          <OrderCardSkeleton key={i} />
+                        ))}
                       </div>
                     ) : error ? (
                       <div className="pastel-card" style={{ padding: 24, background: '#FFE8E8', color: 'var(--coral)' }}>

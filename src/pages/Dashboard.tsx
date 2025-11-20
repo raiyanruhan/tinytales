@@ -9,6 +9,8 @@ import { useModal } from '@context/ModalContext';
 import { GiCardboardBox } from 'react-icons/gi';
 import { MdAssignment, MdCloudUpload, MdWarning, MdArrowBack, MdSearch, MdClose, MdEmail, MdLocationOn, MdCalendarToday, MdCheckCircle } from 'react-icons/md';
 import { ProductsIcon } from '@components/Icons';
+import { OrderCardSkeleton, ProductCardSkeleton } from '@components/Skeleton';
+import { toast } from '@utils/toast';
 
 type ViewMode = 'products' | 'orders';
 type ProductViewMode = 'list' | 'add' | 'edit' | 'bulk-import';
@@ -31,6 +33,13 @@ export default function Dashboard() {
     loadOrders();
   }, []);
 
+  // Reload orders when switching to orders view
+  useEffect(() => {
+    if (viewMode === 'orders') {
+      loadOrders();
+    }
+  }, [viewMode]);
+
   const loadProducts = async () => {
     try {
       setLoading(true);
@@ -46,10 +55,23 @@ export default function Dashboard() {
 
   const loadOrders = async () => {
     try {
+      setLoading(true);
+      setError('');
       const data = await getOrders();
-      setOrders(data);
+      console.log('Orders loaded:', data);
+      setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to load orders:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load orders';
+      setError(errorMessage);
+      setOrders([]);
+      
+      // If it's an authentication error, show a more helpful message
+      if (errorMessage.includes('401') || errorMessage.includes('403') || errorMessage.includes('permission')) {
+        setError('You need admin permissions to view all orders. Please ensure you are logged in as an admin.');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -86,11 +108,23 @@ export default function Dashboard() {
   };
 
   const handleDelete = async (id: string) => {
+    const product = products.find(p => p.id === id);
+    const toastId = toast.loading('Deleting product...');
+    
     try {
       await deleteProduct(id);
+      toast.dismiss(toastId);
+      toast.success('Product deleted', {
+        description: `${product?.name || 'Product'} has been removed`,
+      });
       await loadProducts();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete product');
+      toast.dismiss(toastId);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete product';
+      setError(errorMessage);
+      toast.error('Failed to delete product', {
+        description: errorMessage,
+      });
       throw err;
     }
   };
@@ -172,19 +206,40 @@ export default function Dashboard() {
 
   const handleUpdateOrderStatus = async (id: string, status: string, adminStatus?: string, shipperName?: string) => {
     if (loadingActions[`update-${id}`]) return;
+    
+    // Optimistic update - update UI immediately
+    const previousOrder = orders.find(o => o.id === id);
+    if (previousOrder) {
+      const optimisticOrder = { ...previousOrder, status, adminStatus, shipperName };
+      setOrders(prev => prev.map(o => o.id === id ? optimisticOrder : o));
+      if (selectedOrder && selectedOrder.id === id) {
+        setSelectedOrder(optimisticOrder);
+      }
+    }
+    
     setLoadingActions(prev => ({ ...prev, [`update-${id}`]: true }));
+    
     try {
       await updateOrderStatus(id, status, adminStatus, shipperName);
+      // Reload to get server state (in case of any differences)
       await loadOrders();
       if (selectedOrder && selectedOrder.id === id) {
         const updated = await getOrders();
         setSelectedOrder(updated.find(o => o.id === id) || null);
       }
+      toast.success('Order status updated', {
+        description: `Order #${previousOrder?.orderNumber} status changed to ${status}`,
+      });
     } catch (err) {
-      showAlert({
-        title: 'Error',
-        message: err instanceof Error ? err.message : 'Failed to update order status',
-        type: 'error'
+      // Revert optimistic update on error
+      if (previousOrder) {
+        setOrders(prev => prev.map(o => o.id === id ? previousOrder : o));
+        if (selectedOrder && selectedOrder.id === id) {
+          setSelectedOrder(previousOrder);
+        }
+      }
+      toast.error('Failed to update order status', {
+        description: err instanceof Error ? err.message : 'Please try again',
       });
     } finally {
       setLoadingActions(prev => ({ ...prev, [`update-${id}`]: false }));
@@ -193,12 +248,24 @@ export default function Dashboard() {
 
   const handleCancelOrder = async (id: string) => {
     if (loadingActions[`cancel-${id}`]) return;
+    
+    const orderToCancel = orders.find(o => o.id === id);
+    
     showConfirm({
       title: 'Cancel Order',
       message: 'Are you sure you want to cancel this order?',
       confirmText: 'Cancel Order',
       cancelText: 'No',
       onConfirm: async () => {
+        // Optimistic update
+        if (orderToCancel) {
+          const optimisticOrder = { ...orderToCancel, status: 'cancelled' };
+          setOrders(prev => prev.map(o => o.id === id ? optimisticOrder : o));
+          if (selectedOrder && selectedOrder.id === id) {
+            setSelectedOrder(optimisticOrder);
+          }
+        }
+        
         setLoadingActions(prev => ({ ...prev, [`cancel-${id}`]: true }));
         try {
           await cancelOrder(id, 'Cancelled by admin');
@@ -207,11 +274,19 @@ export default function Dashboard() {
             const updated = await getOrders();
             setSelectedOrder(updated.find(o => o.id === id) || null);
           }
+          toast.success('Order cancelled', {
+            description: `Order #${orderToCancel?.orderNumber} has been cancelled`,
+          });
         } catch (err) {
-          showAlert({
-            title: 'Error',
-            message: err instanceof Error ? err.message : 'Failed to cancel order',
-            type: 'error'
+          // Revert optimistic update on error
+          if (orderToCancel) {
+            setOrders(prev => prev.map(o => o.id === id ? orderToCancel : o));
+            if (selectedOrder && selectedOrder.id === id) {
+              setSelectedOrder(orderToCancel);
+            }
+          }
+          toast.error('Failed to cancel order', {
+            description: err instanceof Error ? err.message : 'Please try again',
           });
         } finally {
           setLoadingActions(prev => ({ ...prev, [`cancel-${id}`]: false }));
@@ -231,13 +306,19 @@ export default function Dashboard() {
   if (loading && products.length === 0 && viewMode === 'products') {
     return (
       <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: 'calc(100vh - 80px)',
-        background: 'var(--cream)'
+        padding: '2rem',
+        background: 'var(--cream)',
+        minHeight: 'calc(100vh - 80px)'
       }}>
-        <div style={{ fontSize: 18, color: 'var(--navy)' }}>Loading products...</div>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', 
+          gap: '1.5rem'
+        }}>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <ProductCardSkeleton key={i} />
+          ))}
+        </div>
       </div>
     );
   }
@@ -820,7 +901,19 @@ export default function Dashboard() {
 
             {/* Orders List */}
             <div style={{ display: 'grid', gap: '12px' }}>
-              {filteredOrders.length === 0 ? (
+              {loading && orders.length === 0 ? (
+                <div style={{
+                  padding: '4rem 2rem',
+                  textAlign: 'center',
+                  background: '#ffffff',
+                  borderRadius: '8px',
+                  border: '1px solid #e5e7eb'
+                }}>
+                  <div style={{ fontSize: '16px', fontWeight: 500, color: '#6b7280' }}>
+                    Loading orders...
+                  </div>
+                </div>
+              ) : filteredOrders.length === 0 ? (
                 <div style={{
                   padding: '4rem 2rem',
                   textAlign: 'center',

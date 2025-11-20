@@ -11,6 +11,7 @@ import {
 } from '../utils/orders.js';
 import { checkStock, getProductById } from '../utils/products.js';
 import { adminAuth } from '../middleware/adminAuth.js';
+import { verifyCSRF, stateChangeRateLimiter } from '../middleware/security.js';
 import {
   sendOrderConfirmationEmail,
   sendAdminOrderNotificationEmail,
@@ -21,7 +22,7 @@ import {
 const router = express.Router();
 
 // Create new order (public, no auth required)
-router.post('/', async (req, res) => {
+router.post('/', stateChangeRateLimiter, verifyCSRF, async (req, res) => {
   try {
     const { email, userId, items, shipping, payment, address } = req.body;
 
@@ -144,8 +145,10 @@ router.get('/:id', (req, res) => {
 // Get orders by email
 router.get('/email/:email', (req, res) => {
   try {
-    const orders = getOrdersByEmail(req.params.email);
-    res.json({ orders });
+    // Decode the email parameter (it's URL encoded)
+    const email = decodeURIComponent(req.params.email);
+    const orders = getOrdersByEmail(email);
+    res.json({ orders: orders || [] });
   } catch (error) {
     console.error('Error fetching orders by email:', error);
     res.status(500).json({ error: 'Failed to fetch orders' });
@@ -153,7 +156,7 @@ router.get('/email/:email', (req, res) => {
 });
 
 // Update order status (admin only)
-router.put('/:id/status', adminAuth, async (req, res) => {
+router.put('/:id/status', stateChangeRateLimiter, verifyCSRF, adminAuth, async (req, res) => {
   try {
     const { status, adminStatus, shipperName } = req.body;
     
@@ -184,7 +187,7 @@ router.put('/:id/status', adminAuth, async (req, res) => {
 });
 
 // Approve order (admin only, decreases stock)
-router.put('/:id/approve', adminAuth, async (req, res) => {
+router.put('/:id/approve', stateChangeRateLimiter, verifyCSRF, adminAuth, async (req, res) => {
   try {
     const { order, statusChanged } = approveOrder(req.params.id);
     
@@ -213,7 +216,7 @@ router.put('/:id/approve', adminAuth, async (req, res) => {
 });
 
 // Refuse order (admin only)
-router.put('/:id/refuse', adminAuth, async (req, res) => {
+router.put('/:id/refuse', stateChangeRateLimiter, verifyCSRF, adminAuth, async (req, res) => {
   try {
     const { reason } = req.body;
     const { order, statusChanged } = refuseOrder(req.params.id);
@@ -238,7 +241,7 @@ router.put('/:id/refuse', adminAuth, async (req, res) => {
 });
 
 // Cancel order (user or admin)
-router.put('/:id/cancel', async (req, res) => {
+router.put('/:id/cancel', stateChangeRateLimiter, verifyCSRF, async (req, res) => {
   try {
     const { reason, email: providedEmail } = req.body;
     const token = req.headers.authorization?.split(' ')[1];
@@ -272,24 +275,12 @@ router.put('/:id/cancel', async (req, res) => {
         }
       } catch (err) {
         // Token verification failed - will use provided email as fallback
-        console.log('Token verification failed:', err.message);
       }
     }
     
     // Determine if user can cancel this order
     // Priority: Admin > userId match > Token-verified user email match > Provided email match
     let canCancel = false;
-    
-    // Debug logging (remove in production)
-    console.log('Cancel order check:', {
-      orderEmail,
-      orderUserId: order.userId,
-      userEmail,
-      userId,
-      providedEmail,
-      hasToken: !!token,
-      isAdmin
-    });
     
     if (isAdmin) {
       // Admin can cancel any order

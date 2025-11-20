@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { existsSync, mkdirSync } from 'fs';
 import { adminAuth } from '../middleware/adminAuth.js';
+import { verifyCSRF } from '../middleware/security.js';
 
 const router = express.Router();
 
@@ -52,7 +53,7 @@ const upload = multer({
 });
 
 // Upload endpoint (admin only)
-router.post('/', adminAuth, upload.array('images', 10), (req, res) => {
+router.post('/', verifyCSRF, adminAuth, upload.array('images', 10), (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: 'No files uploaded' });

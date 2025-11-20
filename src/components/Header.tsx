@@ -1,15 +1,18 @@
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useCart } from '@context/CartContext'
 import { useAuth } from '@context/AuthContext'
-import { CartIcon, PersonIcon, HeartIcon, MenuIcon, CloseIcon } from './Icons'
+import { CartIcon, PersonIcon, HeartIcon, MenuIcon, CloseIcon, SearchIcon } from './Icons'
 import { useState, useRef, useEffect } from 'react'
 
 export default function Header() {
   const { totalQty } = useCart()
   const { isAuthenticated, user, logout } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [showMenu, setShowMenu] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
+  const [showSearchModal, setShowSearchModal] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
   const menuRef = useRef<HTMLDivElement>(null)
   const mobileMenuRef = useRef<HTMLDivElement>(null)
 
@@ -40,20 +43,21 @@ export default function Header() {
       if (event.key === 'Escape') {
         setShowMobileMenu(false)
         setShowMenu(false)
+        setShowSearchModal(false)
       }
     }
 
-    if (showMobileMenu || showMenu) {
+    if (showMobileMenu || showMenu || showSearchModal) {
       document.addEventListener('keydown', handleEscape)
     }
 
     return () => {
       document.removeEventListener('keydown', handleEscape)
     }
-  }, [showMobileMenu, showMenu])
+  }, [showMobileMenu, showMenu, showSearchModal])
 
   useEffect(() => {
-    if (showMobileMenu) {
+    if (showMobileMenu || showSearchModal) {
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = ''
@@ -62,7 +66,13 @@ export default function Header() {
     return () => {
       document.body.style.overflow = ''
     }
-  }, [showMobileMenu])
+  }, [showMobileMenu, showSearchModal])
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const query = params.get('search') || ''
+    setSearchTerm(query)
+  }, [location.pathname, location.search])
 
   const handlePersonClick = () => {
     if (isAuthenticated) {
@@ -70,6 +80,19 @@ export default function Header() {
     } else {
       navigate('/login')
     }
+  }
+
+  const performSearch = (query: string) => {
+    const trimmed = query.trim()
+    setShowMobileMenu(false)
+    setShowSearchModal(false)
+    if (!trimmed) {
+      navigate('/products')
+      return
+    }
+    const params = new URLSearchParams()
+    params.set('search', trimmed)
+    navigate(`/products?${params.toString()}`)
   }
 
   const handleLogout = () => {
@@ -106,6 +129,9 @@ export default function Header() {
             className="mobile-menu-button"
             onClick={() => setShowMobileMenu(!showMobileMenu)}
             aria-label="Toggle menu"
+            aria-haspopup="true"
+            aria-expanded={showMobileMenu}
+            aria-controls="mobile-menu-drawer"
             style={{
               display: 'none',
               alignItems: 'center',
@@ -135,64 +161,97 @@ export default function Header() {
           </Link>
         </div>
         
-        <nav className="desktop-nav" style={{
-          display: 'flex',
-          gap: 8,
-          alignItems: 'center',
-          flex: 1,
-          justifyContent: 'center'
-        }}>
-          <NavLink 
-            to="/products" 
-            className="nav-link"
-          >
-            All Products
-          </NavLink>
-          <NavLink 
-            to="/category/Newborn" 
-            className="nav-link"
-          >
-            Newborn
-          </NavLink>
-          <NavLink 
-            to="/category/Onesies" 
-            className="nav-link"
-          >
-            Onesies
-          </NavLink>
-          <NavLink 
-            to="/category/Sets" 
-            className="nav-link"
-          >
-            Sets
-          </NavLink>
-          <NavLink 
-            to="/category/Sleepwear" 
-            className="nav-link"
-          >
-            Sleepwear
-          </NavLink>
-          <NavLink 
-            to="/category/Accessories" 
-            className="nav-link"
-          >
-            Accessories
-          </NavLink>
-          {isAuthenticated && user?.email.toLowerCase() === 'raiyanbinrashid0@gmail.com' && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, flex: 1, justifyContent: 'center' }}>
+          <nav
+            className="desktop-nav"
+            role="navigation"
+            aria-label="Primary"
+            style={{
+            display: 'flex',
+            gap: 8,
+            alignItems: 'center'
+          }}>
             <NavLink 
-              to="/dashboard" 
+              to="/products" 
               className="nav-link"
             >
-              Dashboard
+              All Products
             </NavLink>
-          )}
-        </nav>
+            <NavLink 
+              to="/category/Newborn" 
+              className="nav-link"
+            >
+              Newborn
+            </NavLink>
+            <NavLink 
+              to="/category/Onesies" 
+              className="nav-link"
+            >
+              Onesies
+            </NavLink>
+            <NavLink 
+              to="/category/Sets" 
+              className="nav-link"
+            >
+              Sets
+            </NavLink>
+            <NavLink 
+              to="/category/Sleepwear" 
+              className="nav-link"
+            >
+              Sleepwear
+            </NavLink>
+            <NavLink 
+              to="/category/Accessories" 
+              className="nav-link"
+            >
+              Accessories
+            </NavLink>
+            {isAuthenticated && user?.email.toLowerCase() === 'raiyanbinrashid0@gmail.com' && (
+              <NavLink 
+                to="/dashboard" 
+                className="nav-link"
+              >
+                Dashboard
+              </NavLink>
+            )}
+          </nav>
+        </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, position: 'relative' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, position: 'relative' }}>
+          <button
+            onClick={() => setShowSearchModal(true)}
+            aria-label="Search products"
+            aria-haspopup="dialog"
+            aria-expanded={showSearchModal}
+            style={{
+              position: 'relative',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 44,
+              height: 44,
+              borderRadius: '50%',
+              background: 'var(--cream)',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'var(--transition-fast)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--paper)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--cream)'
+              e.currentTarget.style.transform = 'scale(1)'
+            }}
+          >
+            <SearchIcon size="lg" style={{ fontSize: 18, color: 'var(--navy)' }} />
+          </button>
           {isAuthenticated && (
             <Link
               to="/wishlist"
               aria-label="Wishlist"
+              className="wishlist-button"
               style={{
                 position: 'relative',
                 display: 'inline-flex',
@@ -219,6 +278,9 @@ export default function Header() {
             <button
               onClick={handlePersonClick}
               aria-label={isAuthenticated ? 'User menu' : 'Login'}
+              aria-haspopup="menu"
+              aria-expanded={showMenu}
+              aria-controls="user-menu"
               style={{
                 position: 'relative',
                 display: 'inline-flex',
@@ -247,7 +309,11 @@ export default function Header() {
             </button>
 
             {isAuthenticated && showMenu && (
-              <div style={{
+              <div
+                id="user-menu"
+                role="menu"
+                aria-label="User menu"
+                style={{
                 position: 'absolute',
                 top: '100%',
                 right: 0,
@@ -373,6 +439,7 @@ export default function Header() {
             {totalQty > 0 && (
               <span
                 className="badge"
+                aria-live="polite"
                 style={{
                   position: 'absolute',
                   top: -4,
@@ -387,7 +454,8 @@ export default function Header() {
                   animation: totalQty > 0 ? 'bounce 0.5s' : 'none'
                 }}
               >
-                {totalQty}
+                <span aria-hidden="true">{totalQty}</span>
+                <span className="sr-only">{totalQty} items in cart</span>
               </span>
             )}
           </Link>
@@ -481,14 +549,18 @@ export default function Header() {
           />
           <div 
             ref={mobileMenuRef}
+            id="mobile-menu-drawer"
             className={`mobile-menu-drawer ${showMobileMenu ? 'open' : ''}`}
+            role="navigation"
+            aria-label="Mobile primary"
           >
             <div style={{
               padding: '20px',
               borderBottom: '1px solid var(--border-light)',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'space-between'
+              justifyContent: 'space-between',
+              gap: 12
             }}>
               <img 
                 src="/image.png" 
@@ -619,6 +691,9 @@ export default function Header() {
         </>
       )}
       <style>{`
+        .wishlist-button {
+          display: inline-flex;
+        }
         .mobile-nav-link {
           display: block;
           padding: 16px 20px;
@@ -640,7 +715,125 @@ export default function Header() {
           background: var(--mint);
           color: var(--white);
         }
+        .search-modal-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(0,0,0,0.55);
+          z-index: 10000;
+        }
+        .search-modal {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: min(500px, 92vw);
+          background: var(--white);
+          border-radius: var(--radius-lg);
+          padding: 32px;
+          box-shadow: 0 30px 80px rgba(0,0,0,0.2);
+          z-index: 10001;
+          animation: fadeInUp 0.25s ease;
+        }
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translate(-50%, -45%);
+          }
+          to {
+            opacity: 1;
+            transform: translate(-50%, -50%);
+          }
+        }
+        @media (max-width: 1023px) {
+          .wishlist-button {
+            display: none !important;
+          }
+        }
       `}</style>
+      {showSearchModal && (
+        <>
+          <div className="search-modal-backdrop" onClick={() => setShowSearchModal(false)} />
+          <div
+            className="search-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="search-modal-title"
+            aria-describedby="search-modal-description"
+          >
+            <button
+              onClick={() => setShowSearchModal(false)}
+              aria-label="Close search"
+              style={{
+                position: 'absolute',
+                top: 16,
+                right: 16,
+                width: 40,
+                height: 40,
+                borderRadius: '50%',
+                border: 'none',
+                background: 'var(--cream)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <CloseIcon size="lg" style={{ fontSize: 18, color: 'var(--navy)' }} />
+            </button>
+            <h3
+              id="search-modal-title"
+              style={{ marginBottom: 8, color: 'var(--navy)', fontSize: 22, fontWeight: 700 }}
+            >
+              Search TinyTales
+            </h3>
+            <p
+              id="search-modal-description"
+              style={{ marginBottom: 24, color: 'var(--navy)', opacity: 0.7 }}
+            >
+              Look up outfits, categories, or accessories
+            </p>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                performSearch(searchTerm)
+              }}
+              style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
+            >
+              <label htmlFor="search-modal-input" style={{ display: 'none' }}>Search products</label>
+              <input
+                id="search-modal-input"
+                type="search"
+                autoFocus
+                placeholder="Try “onesie”, “sleepwear”, or a color"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  padding: '14px 20px',
+                  borderRadius: 999,
+                  border: '1px solid var(--border-light)',
+                  fontSize: 16,
+                  background: 'var(--paper)'
+                }}
+              />
+              <button
+                type="submit"
+                style={{
+                  padding: '12px 18px',
+                  borderRadius: 999,
+                  border: 'none',
+                  background: 'var(--navy)',
+                  color: 'var(--white)',
+                  fontWeight: 700,
+                  fontSize: 16,
+                  cursor: 'pointer'
+                }}
+              >
+                Search
+              </button>
+            </form>
+          </div>
+        </>
+      )}
     </header>
   )
 }

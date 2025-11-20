@@ -1,16 +1,21 @@
 ---
-title: Sonner
-description: An opinionated toast component for React.
+title: Carousel
+description: A carousel with motion and swipe built using Embla.
 component: true
 links:
-  doc: https://sonner.emilkowal.ski
+  doc: https://www.embla-carousel.com/get-started/react
+  api: https://www.embla-carousel.com/api
 ---
 
-<ComponentPreview name="sonner-demo" />
+<ComponentPreview
+  name="carousel-demo"
+  title="Carousel"
+  description="A carousel with 5 items and a previous and next button."
+/>
 
 ## About
 
-Sonner is built and maintained by [emilkowalski\_](https://twitter.com/emilkowalski_).
+The carousel component is built using the [Embla Carousel](https://www.embla-carousel.com/) library.
 
 ## Installation
 
@@ -20,35 +25,12 @@ Sonner is built and maintained by [emilkowalski\_](https://twitter.com/emilkowal
   <TabsTrigger value="cli">CLI</TabsTrigger>
   <TabsTrigger value="manual">Manual</TabsTrigger>
 </TabsList>
+
 <TabsContent value="cli">
 
-<Steps>
-
-<Step>Run the following command:</Step>
-
 ```bash
-npx shadcn@latest add sonner
+npx shadcn@latest add carousel
 ```
-
-<Step>Add the Toaster component</Step>
-
-```tsx title="app/layout.tsx" {1,9}
-import { Toaster } from "@/components/ui/sonner"
-
-export default function RootLayout({ children }) {
-  return (
-    <html lang="en">
-      <head />
-      <body>
-        <main>{children}</main>
-        <Toaster />
-      </body>
-    </html>
-  )
-}
-```
-
-</Steps>
 
 </TabsContent>
 
@@ -59,30 +41,14 @@ export default function RootLayout({ children }) {
 <Step>Install the following dependencies:</Step>
 
 ```bash
-npm install sonner next-themes
+npm install embla-carousel-react
 ```
 
 <Step>Copy and paste the following code into your project.</Step>
 
-<ComponentSource name="sonner" title="components/ui/sonner.tsx" />
+<ComponentSource name="carousel" title="components/ui/carousel.tsx" />
 
-<Step>Add the Toaster component</Step>
-
-```tsx showLineNumbers title="app/layout.tsx" {1,8}
-import { Toaster } from "@/components/ui/sonner"
-
-export default function RootLayout({ children }) {
-  return (
-    <html lang="en">
-      <head />
-      <body>
-        <Toaster />
-        <main>{children}</main>
-      </body>
-    </html>
-  )
-}
-```
+<Step>Update the import paths to match your project setup.</Step>
 
 </Steps>
 
@@ -92,63 +58,244 @@ export default function RootLayout({ children }) {
 
 ## Usage
 
-```tsx
-import { toast } from "sonner"
+```tsx showLineNumbers
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
 ```
 
-```tsx
-toast("Event has been created.")
+```tsx showLineNumbers
+<Carousel>
+  <CarouselContent>
+    <CarouselItem>...</CarouselItem>
+    <CarouselItem>...</CarouselItem>
+    <CarouselItem>...</CarouselItem>
+  </CarouselContent>
+  <CarouselPrevious />
+  <CarouselNext />
+</Carousel>
 ```
 
 ## Examples
 
-<ComponentPreview name="sonner-types" />
+### Sizes
 
-## Changelog
+To set the size of the items, you can use the `basis` utility class on the `<CarouselItem />`.
 
-### 2025-10-13 Icons
+<ComponentPreview
+  name="carousel-size"
+  title="Carousel"
+  description="A carousel with 3 active items of equal size."
+/>
 
-We've updated the Sonner component to use icons from `lucide`. Update your `sonner.tsx` file to use the new icons.
+```tsx showLineNumbers {4-6}
+// 33% of the carousel width.
+<Carousel>
+  <CarouselContent>
+    <CarouselItem className="basis-1/3">...</CarouselItem>
+    <CarouselItem className="basis-1/3">...</CarouselItem>
+    <CarouselItem className="basis-1/3">...</CarouselItem>
+  </CarouselContent>
+</Carousel>
+```
 
-```tsx showLineNumbers title="components/ui/sonner.tsx" {3-9,20-26}
-"use client"
+```tsx showLineNumbers {4-6}
+// 50% on small screens and 33% on larger screens.
+<Carousel>
+  <CarouselContent>
+    <CarouselItem className="md:basis-1/2 lg:basis-1/3">...</CarouselItem>
+    <CarouselItem className="md:basis-1/2 lg:basis-1/3">...</CarouselItem>
+    <CarouselItem className="md:basis-1/2 lg:basis-1/3">...</CarouselItem>
+  </CarouselContent>
+</Carousel>
+```
 
-import {
-  CircleCheckIcon,
-  InfoIcon,
-  Loader2Icon,
-  OctagonXIcon,
-  TriangleAlertIcon,
-} from "lucide-react"
-import { useTheme } from "next-themes"
-import { Toaster as Sonner, ToasterProps } from "sonner"
+### Spacing
 
-const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme()
+To set the spacing between the items, we use a `pl-[VALUE]` utility on the `<CarouselItem />` and a negative `-ml-[VALUE]` on the `<CarouselContent />`.
+
+<Callout className="mt-6">
+  **Why:** I tried to use the `gap` property or a `grid` layout on the `
+  <CarouselContent />` but it required a lot of math and mental effort to get the
+  spacing right. I found `pl-[VALUE]` and `-ml-[VALUE]` utilities much easier to
+  use.
+
+You can always adjust this in your own project if you need to.
+
+</Callout>
+
+<ComponentPreview
+  name="carousel-spacing"
+  title="Carousel"
+  description="A carousel with 3 items with a spacing of 1rem."
+/>
+
+```tsx showLineNumbers /-ml-4/ /pl-4/
+<Carousel>
+  <CarouselContent className="-ml-4">
+    <CarouselItem className="pl-4">...</CarouselItem>
+    <CarouselItem className="pl-4">...</CarouselItem>
+    <CarouselItem className="pl-4">...</CarouselItem>
+  </CarouselContent>
+</Carousel>
+```
+
+```tsx showLineNumbers /-ml-2/ /pl-2/ /md:-ml-4/ /md:pl-4/
+<Carousel>
+  <CarouselContent className="-ml-2 md:-ml-4">
+    <CarouselItem className="pl-2 md:pl-4">...</CarouselItem>
+    <CarouselItem className="pl-2 md:pl-4">...</CarouselItem>
+    <CarouselItem className="pl-2 md:pl-4">...</CarouselItem>
+  </CarouselContent>
+</Carousel>
+```
+
+### Orientation
+
+Use the `orientation` prop to set the orientation of the carousel.
+
+<ComponentPreview
+  name="carousel-orientation"
+  title="Carousel"
+  description="A vertical carousel."
+/>
+
+```tsx showLineNumbers /vertical | horizontal/
+<Carousel orientation="vertical | horizontal">
+  <CarouselContent>
+    <CarouselItem>...</CarouselItem>
+    <CarouselItem>...</CarouselItem>
+    <CarouselItem>...</CarouselItem>
+  </CarouselContent>
+</Carousel>
+```
+
+## Options
+
+You can pass options to the carousel using the `opts` prop. See the [Embla Carousel docs](https://www.embla-carousel.com/api/options/) for more information.
+
+```tsx showLineNumbers {2-5}
+<Carousel
+  opts={{
+    align: "start",
+    loop: true,
+  }}
+>
+  <CarouselContent>
+    <CarouselItem>...</CarouselItem>
+    <CarouselItem>...</CarouselItem>
+    <CarouselItem>...</CarouselItem>
+  </CarouselContent>
+</Carousel>
+```
+
+## API
+
+Use a state and the `setApi` props to get an instance of the carousel API.
+
+<ComponentPreview
+  name="carousel-api"
+  title="Carousel"
+  description="A carousel with a slide counter."
+/>
+
+```tsx showLineNumbers {1,4,22}
+import { type CarouselApi } from "@/components/ui/carousel"
+
+export function Example() {
+  const [api, setApi] = React.useState<CarouselApi>()
+  const [current, setCurrent] = React.useState(0)
+  const [count, setCount] = React.useState(0)
+
+  React.useEffect(() => {
+    if (!api) {
+      return
+    }
+
+    setCount(api.scrollSnapList().length)
+    setCurrent(api.selectedScrollSnap() + 1)
+
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap() + 1)
+    })
+  }, [api])
 
   return (
-    <Sonner
-      theme={theme as ToasterProps["theme"]}
-      className="toaster group"
-      icons={{
-        success: <CircleCheckIcon className="size-4" />,
-        info: <InfoIcon className="size-4" />,
-        warning: <TriangleAlertIcon className="size-4" />,
-        error: <OctagonXIcon className="size-4" />,
-        loading: <Loader2Icon className="size-4 animate-spin" />,
-      }}
-      style={
-        {
-          "--normal-bg": "var(--popover)",
-          "--normal-text": "var(--popover-foreground)",
-          "--normal-border": "var(--border)",
-          "--border-radius": "var(--radius)",
-        } as React.CSSProperties
-      }
-      {...props}
-    />
+    <Carousel setApi={setApi}>
+      <CarouselContent>
+        <CarouselItem>...</CarouselItem>
+        <CarouselItem>...</CarouselItem>
+        <CarouselItem>...</CarouselItem>
+      </CarouselContent>
+    </Carousel>
   )
 }
-
-export { Toaster }
 ```
+
+## Events
+
+You can listen to events using the api instance from `setApi`.
+
+```tsx showLineNumbers {1,4-14,16}
+import { type CarouselApi } from "@/components/ui/carousel"
+
+export function Example() {
+  const [api, setApi] = React.useState<CarouselApi>()
+
+  React.useEffect(() => {
+    if (!api) {
+      return
+    }
+
+    api.on("select", () => {
+      // Do something on select.
+    })
+  }, [api])
+
+  return (
+    <Carousel setApi={setApi}>
+      <CarouselContent>
+        <CarouselItem>...</CarouselItem>
+        <CarouselItem>...</CarouselItem>
+        <CarouselItem>...</CarouselItem>
+      </CarouselContent>
+    </Carousel>
+  )
+}
+```
+
+See the [Embla Carousel docs](https://www.embla-carousel.com/api/events/) for more information on using events.
+
+## Plugins
+
+You can use the `plugins` prop to add plugins to the carousel.
+
+```ts showLineNumbers {1,6-10}
+import Autoplay from "embla-carousel-autoplay"
+
+export function Example() {
+  return (
+    <Carousel
+      plugins={[
+        Autoplay({
+          delay: 2000,
+        }),
+      ]}
+    >
+      // ...
+    </Carousel>
+  )
+}
+```
+
+<ComponentPreview
+  name="carousel-plugin"
+  title="Carousel"
+  description="A carousel with the autoplay plugin."
+/>
+
+See the [Embla Carousel docs](https://www.embla-carousel.com/api/plugins/) for more information on using plugins.

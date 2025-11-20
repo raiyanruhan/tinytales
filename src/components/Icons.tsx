@@ -11,7 +11,8 @@ import {
   faUser,
   faBangladeshiTakaSign,
   faBars,
-  faXmark
+  faXmark,
+  faMagnifyingGlass
 } from '@fortawesome/free-solid-svg-icons'
 import { FaHome, FaRegHeart } from 'react-icons/fa'
 import { GiCardboardBox } from 'react-icons/gi'
@@ -75,6 +76,10 @@ export const MenuIcon = ({ size = '1x', style }: { size?: string; style?: React.
 
 export const CloseIcon = ({ size = '1x', style }: { size?: string; style?: React.CSSProperties }) => (
   <FontAwesomeIcon icon={faXmark} size={size as any} style={style as any} />
+)
+
+export const SearchIcon = ({ size = '1x', style }: { size?: string; style?: React.CSSProperties }) => (
+  <FontAwesomeIcon icon={faMagnifyingGlass} size={size as any} style={style as any} />
 )
 
 export const HomeIcon = ({ size = '1x', style }: { size?: string; style?: React.CSSProperties }) => (

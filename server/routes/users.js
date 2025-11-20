@@ -1,6 +1,7 @@
 import express from 'express';
 import { getSavedCart, saveCart, getWishlist, addToWishlist, removeFromWishlist, isInWishlist } from '../utils/users.js';
 import jwt from 'jsonwebtoken';
+import { verifyCSRF, stateChangeRateLimiter } from '../middleware/security.js';
 
 const router = express.Router();
 
@@ -35,7 +36,7 @@ router.get('/:id/cart', verifyToken, (req, res) => {
 });
 
 // Save cart (requires auth)
-router.post('/:id/cart', verifyToken, (req, res) => {
+router.post('/:id/cart', stateChangeRateLimiter, verifyCSRF, verifyToken, (req, res) => {
   try {
     if (req.params.id !== req.userId) {
       return res.status(403).json({ error: 'Access denied' });
@@ -66,7 +67,7 @@ router.get('/:id/wishlist', verifyToken, (req, res) => {
 });
 
 // Add to wishlist (requires auth)
-router.post('/:id/wishlist', verifyToken, (req, res) => {
+router.post('/:id/wishlist', stateChangeRateLimiter, verifyCSRF, verifyToken, (req, res) => {
   try {
     if (req.params.id !== req.userId) {
       return res.status(403).json({ error: 'Access denied' });
@@ -77,10 +78,7 @@ router.post('/:id/wishlist', verifyToken, (req, res) => {
       return res.status(400).json({ error: 'Product ID is required' });
     }
 
-    console.log('Adding to wishlist:', { userId: req.params.id, productId });
     const wishlist = addToWishlist(req.params.id, productId);
-    console.log('Wishlist after add:', wishlist);
-    console.log('Response type:', typeof wishlist, 'Is array:', Array.isArray(wishlist));
     res.json({ wishlist });
   } catch (error) {
     console.error('Error adding to wishlist:', error);
@@ -89,7 +87,7 @@ router.post('/:id/wishlist', verifyToken, (req, res) => {
 });
 
 // Remove from wishlist (requires auth)
-router.delete('/:id/wishlist/:productId', verifyToken, (req, res) => {
+router.delete('/:id/wishlist/:productId', stateChangeRateLimiter, verifyCSRF, verifyToken, (req, res) => {
   try {
     if (req.params.id !== req.userId) {
       return res.status(403).json({ error: 'Access denied' });

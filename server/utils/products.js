@@ -147,7 +147,6 @@ export function decreaseStock(productId, size, color, quantity) {
     // This handles cases where stock wasn't properly initialized
     if (currentStock === undefined && Object.keys(product.stock).length === 0) {
       // No stock data at all - initialize with high default to allow order processing
-      console.warn(`No stock data for product ${productId}, size ${size}, color ${actualColor}. Initializing with default stock.`);
       currentStock = 999; // Set high default to allow order processing
       product.stock[stockKey] = currentStock;
     } else {
@@ -236,7 +235,6 @@ export function checkStock(productId, size, color, quantity) {
     // This handles cases where stock wasn't properly initialized
     if (currentStock === undefined && Object.keys(product.stock).length === 0) {
       // No stock data at all - allow order but log warning
-      console.warn(`No stock data for product ${productId}, size ${size}, color ${actualColor}. Allowing order.`);
       return { available: true, availableStock: 999 }; // Set high default to allow order
     }
     

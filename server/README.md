@@ -13,15 +13,17 @@
    Create a `.env` file in the `server` directory with the following:
    ```
    JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-   SMTP_HOST=mail.heemsbd.com
+   SMTP_HOST=mail.tinytalesearth.com
    SMTP_PORT=465
-   SMTP_USER=tinytales@heemsbd.com
+   SMTP_USER=no-reply@tinytalesearth.com
    SMTP_PASS=your-email-password-here
    NODE_ENV=development
    PORT=3001
    ```
 
    **Important**: Replace `SMTP_PASS` with the actual email account password.
+   
+   **Quick Setup**: Run `node setup-env.js` in the server directory to auto-create the `.env` file.
 
 3. **Start the Server**
    ```bash
@@ -57,6 +59,9 @@
 ## Data Storage
 
 User data is stored in `server/data/users.json`. This file is automatically created on first run.
+
+
+
 
 
 

@@ -1,25 +1,89 @@
 import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 // Logo image URL
 const LOGO_URL = 'https://raw.githubusercontent.com/raiyanruhan/tinytales/refs/heads/main/image.png';
 
-// Create transporter with hardcoded credentials
-const transporter = nodemailer.createTransport({
-  host: 'mail.tinytalesearth.com',
-  port: 465,
-  secure: true, // true for 465, false for other ports
+// Get SMTP configuration from environment variables
+const SMTP_HOST = process.env.SMTP_HOST || 'mail.tinytalesearth.com';
+const SMTP_PORT = parseInt(process.env.SMTP_PORT || '465');
+const SMTP_USER = process.env.SMTP_USER || 'no-reply@tinytalesearth.com';
+const SMTP_PASS = process.env.SMTP_PASS || '';
+
+// Validate email configuration
+function isEmailConfigured() {
+  return !!(SMTP_HOST && SMTP_USER && SMTP_PASS);
+}
+
+// Create transporter using environment variables
+let transporter = null;
+
+if (isEmailConfigured()) {
+  transporter = nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: SMTP_PORT,
+    secure: SMTP_PORT === 465, // true for 465, false for other ports
   auth: {
-    user: 'no-reply@tinytalesearth.com',
-    pass: 'bDkBHvKct_PTb9d+',
+      user: SMTP_USER,
+      pass: SMTP_PASS,
   },
   tls: {
     rejectUnauthorized: false // Allow self-signed certificates if needed
-  }
-});
+    },
+    connectionTimeout: 10000, // 10 seconds
+    greetingTimeout: 10000,
+    socketTimeout: 10000,
+  });
+
+  // Verify transporter configuration
+  transporter.verify((error, success) => {
+    if (error) {
+      console.error('❌ Email configuration error:', error.message);
+      console.error('⚠️  Email functionality will be disabled. Please check your SMTP credentials in server/.env');
+    } else {
+      console.log(' Email server is ready to send messages');
+    }
+  });
+} else {
+  console.warn('⚠️  Email not configured: SMTP_PASS is missing in server/.env');
+  console.warn('⚠️  Email functionality will be disabled. Please set SMTP_PASS in server/.env');
+}
 
 // Generate 6-digit OTP
 export function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+// Helper function to send email with consistent error handling
+async function sendEmail(mailOptions) {
+  if (!transporter || !isEmailConfigured()) {
+    const error = new Error('Email service is not configured. Please set SMTP_PASS in server/.env');
+    console.error('Email error:', error.message);
+    throw error;
+  }
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    return info;
+  } catch (error) {
+    let errorMessage = 'Failed to send email';
+    
+    if (error.code === 'EAUTH') {
+      errorMessage = 'SMTP authentication failed. Please check your email credentials (SMTP_USER and SMTP_PASS) in server/.env';
+    } else if (error.code === 'ECONNECTION') {
+      errorMessage = 'Cannot connect to email server. Please check SMTP_HOST and SMTP_PORT in server/.env';
+    } else if (error.code === 'ETIMEDOUT') {
+      errorMessage = 'Email server connection timeout. Please check your network and SMTP settings';
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
+    console.error('Email sending error:', errorMessage);
+    console.error('Error code:', error.code || 'N/A');
+    throw new Error(errorMessage);
+  }
 }
 
 // Send verification email
@@ -192,21 +256,7 @@ export async function sendVerificationEmail(email, otp) {
     `
   };
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Verification email sent:', info.messageId);
-    return info;
-  } catch (error) {
-    console.error('Error sending verification email:', error);
-    console.error('Email configuration:', {
-      host: transporter.options.host,
-      port: transporter.options.port,
-      secure: transporter.options.secure,
-      from: mailOptions.from,
-      to: mailOptions.to
-    });
-    throw error;
-  }
+  return await sendEmail(mailOptions);
 }
 
 // Send order confirmation email to user
@@ -480,21 +530,7 @@ export async function sendOrderConfirmationEmail(email, order) {
     `
   };
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Order confirmation email sent:', info.messageId);
-    return info;
-  } catch (error) {
-    console.error('Error sending order confirmation email:', error);
-    console.error('Email error details:', {
-      email: email,
-      orderId: order.id,
-      error: error.message || error,
-      code: error.code,
-      response: error.response
-    });
-    throw error;
-  }
+  return await sendEmail(mailOptions);
 }
 
 // Send admin notification email
@@ -761,20 +797,7 @@ export async function sendAdminOrderNotificationEmail(order) {
     `
   };
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Admin notification email sent:', info.messageId);
-    return info;
-  } catch (error) {
-    console.error('Error sending admin notification email:', error);
-    console.error('Email error details:', {
-      orderId: order.id,
-      error: error.message || error,
-      code: error.code,
-      response: error.response
-    });
-    throw error;
-  }
+  return await sendEmail(mailOptions);
 }
 
 // Send order status update email to user
@@ -996,22 +1019,7 @@ export async function sendOrderStatusEmail(email, order, status, shipperName) {
     `
   };
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Order status email sent:', info.messageId);
-    return info;
-  } catch (error) {
-    console.error('Error sending order status email:', error);
-    console.error('Email error details:', {
-      email: email,
-      orderId: order.id,
-      status: status,
-      error: error.message || error,
-      code: error.code,
-      response: error.response
-    });
-    throw error;
-  }
+  return await sendEmail(mailOptions);
 }
 
 // Send order cancellation email
@@ -1176,20 +1184,217 @@ export async function sendOrderCancellationEmail(email, order, cancelledBy) {
     `
   };
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Order cancellation email sent:', info.messageId);
-    return info;
-  } catch (error) {
-    console.error('Error sending cancellation email:', error);
-    console.error('Email error details:', {
-      email: email,
-      orderId: order.id,
-      cancelledBy: cancelledBy,
-      error: error.message || error,
-      code: error.code,
-      response: error.response
-    });
-    throw error;
-  }
+  return await sendEmail(mailOptions);
+}
+
+// Send password reset email
+export async function sendPasswordResetEmail(email, resetToken) {
+  const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}`;
+
+  const mailOptions = {
+    from: `"TinyTales" <no-reply@tinytalesearth.com>`,
+    to: email,
+    subject: 'Reset Your TinyTales Password',
+    html: `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap');
+            body { 
+              font-family: 'Nunito', Arial, sans-serif; 
+              line-height: 1.6; 
+              color: #283247; 
+              background: #FFFFFF;
+              margin: 0;
+              padding: 20px;
+              -webkit-font-smoothing: antialiased;
+            }
+            .container { 
+              max-width: 600px; 
+              margin: 0 auto; 
+              background-color: #FFFFFF; 
+              border-radius: 24px;
+              box-shadow: 0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+              overflow: hidden;
+            }
+            .header { 
+              background: #FFFFFF;
+              text-align: center; 
+              padding: 48px 24px;
+              border-bottom: 2px solid #6CB1DA;
+            }
+            .logo-img {
+              max-width: 180px;
+              height: auto;
+              margin: 0 auto;
+              display: block;
+            }
+            .content { 
+              padding: 48px 32px;
+              background: #FFFFFF;
+            }
+            .title {
+              font-family: 'Fredoka', cursive;
+              font-size: 28px;
+              font-weight: 600;
+              color: #3B659F;
+              text-align: center;
+              margin: 0 0 24px 0;
+            }
+            .message {
+              font-size: 16px;
+              color: #3B659F;
+              text-align: center;
+              margin: 0 0 32px 0;
+              padding: 24px;
+              background: #FFFFFF;
+              border-radius: 16px;
+              border-left: 4px solid #6CB1DA;
+              line-height: 1.7;
+            }
+            .button-container {
+              text-align: center;
+              margin: 32px 0;
+            }
+            .reset-button {
+              display: inline-block;
+              padding: 18px 40px;
+              background: #FFFFFF;
+              color: #3B659F;
+              text-decoration: none;
+              border-radius: 12px;
+              font-weight: 700;
+              font-family: 'Fredoka', cursive;
+              font-size: 18px;
+              border: 3px solid #6CB1DA;
+            }
+            .token-box {
+              background: #FFFFFF;
+              color: #3B659F;
+              font-size: 18px;
+              font-weight: 600;
+              text-align: center;
+              padding: 24px;
+              border-radius: 16px;
+              margin: 32px 0;
+              border: 2px dashed #6CB1DA;
+              word-break: break-all;
+              font-family: 'Courier New', monospace;
+            }
+            .expiry-notice {
+              text-align: center;
+              font-size: 14px;
+              color: #3B659F;
+              margin: 24px 0 0 0;
+            }
+            .security-notice {
+              text-align: center;
+              font-size: 14px;
+              color: #F77FB2;
+              margin: 32px 0 0 0;
+              padding: 20px;
+              background: #FFFFFF;
+              border-radius: 16px;
+              border-left: 4px solid #F77FB2;
+            }
+            .footer { 
+              text-align: center; 
+              padding: 32px 24px; 
+              background: #FFFFFF;
+              color: #3B659F; 
+              font-size: 13px;
+              border-top: 1px solid #E1E1E1;
+            }
+            .footer p {
+              margin: 8px 0;
+            }
+            .footer strong {
+              color: #3B659F;
+              font-weight: 600;
+            }
+            @media only screen and (max-width: 600px) {
+              body {
+                padding: 12px;
+              }
+              .container {
+                border-radius: 16px;
+              }
+              .header {
+                padding: 32px 20px;
+              }
+              .logo-img {
+                max-width: 140px;
+              }
+              .content {
+                padding: 32px 24px;
+              }
+              .title {
+                font-size: 24px;
+              }
+              .reset-button {
+                padding: 16px 32px;
+                font-size: 16px;
+              }
+              .token-box {
+                font-size: 14px;
+                padding: 20px;
+              }
+              .message {
+                padding: 20px;
+                font-size: 15px;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <img src="${LOGO_URL}" alt="TinyTales" class="logo-img" />
+            </div>
+            <div class="content">
+              <h2 class="title">Reset Your Password</h2>
+              <div class="message">
+                We received a request to reset your password. Click the button below to reset it, or use the token provided.
+              </div>
+              <div class="button-container">
+                <a href="${resetUrl}" class="reset-button">Reset Password</a>
+              </div>
+              <div class="token-box">
+                Reset Token:<br>
+                ${resetToken}
+              </div>
+              <p class="expiry-notice">
+                This link will expire in 1 hour.
+              </p>
+              <div class="security-notice">
+                If you didn't request a password reset, please ignore this email. Your password will remain unchanged.
+              </div>
+            </div>
+            <div class="footer">
+              <p><strong>TinyTales</strong> - Premium Children's Apparel</p>
+              <p>&copy; ${new Date().getFullYear()} TinyTales. All rights reserved.</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `,
+    text: `
+      Reset Your TinyTales Password
+      
+      We received a request to reset your password.
+      
+      Reset Token: ${resetToken}
+      
+      Or visit: ${resetUrl}
+      
+      This link will expire in 1 hour.
+      
+      If you didn't request a password reset, please ignore this email. Your password will remain unchanged.
+    `
+  };
+
+  return await sendEmail(mailOptions);
 }

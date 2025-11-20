@@ -337,11 +337,11 @@
       "sameAddress": true,
       "deliveryInstructions": ""
     },
-    "status": "approved",
-    "adminStatus": null,
-    "shipperName": null,
+    "status": "order_confirmation",
+    "adminStatus": "",
+    "shipperName": "",
     "createdAt": "2025-11-09T10:28:22.686Z",
-    "updatedAt": "2025-11-09T10:31:09.890Z",
+    "updatedAt": "2025-11-19T14:32:06.084Z",
     "cancelledAt": null,
     "cancelledBy": null
   },
@@ -428,6 +428,257 @@
     "shipperName": "",
     "createdAt": "2025-11-14T18:03:45.544Z",
     "updatedAt": "2025-11-14T18:15:14.488Z",
+    "cancelledAt": null,
+    "cancelledBy": null
+  },
+  {
+    "id": "1763562791959",
+    "orderNumber": "TT-1763562791959-329",
+    "email": "raiyanbinrashid0@gmail.com",
+    "userId": "1762515884960",
+    "items": [
+      {
+        "productId": "green-striped-and-embroidered-mixed-cotton-panjabi-1762612525066",
+        "name": "Green Striped and Embroidered Mixed Cotton Panjabi",
+        "price": 900,
+        "quantity": 2,
+        "size": "0-3m",
+        "color": "Green",
+        "image": "https://mcprod.aarong.com/media/catalog/product/0/2/0270000017226.jpg?optimize=high&bg-color=255,255,255&fit=bounds&height=&width="
+      }
+    ],
+    "shipping": {
+      "method": "Standard Shipping",
+      "cost": 100
+    },
+    "payment": {
+      "method": "Cash on Delivery"
+    },
+    "address": {
+      "firstName": "Shajedul",
+      "lastName": "Islam",
+      "mobileNumber": "01712083696",
+      "streetAddress": "Shahjahanpur, B-Block, Bogura Cantonment- Bogura",
+      "country": "Bangladesh",
+      "regionState": "Cox's Bazar",
+      "cityArea": "Teknaf",
+      "zipPostalCode": "5800",
+      "sameAddress": true,
+      "deliveryInstructions": ""
+    },
+    "status": "pending",
+    "adminStatus": null,
+    "shipperName": null,
+    "createdAt": "2025-11-19T14:33:11.959Z",
+    "updatedAt": "2025-11-19T14:33:11.959Z",
+    "cancelledAt": null,
+    "cancelledBy": null
+  },
+  {
+    "id": "1763621255718",
+    "orderNumber": "TT-1763621255719-16",
+    "email": "raiyanbinrashid0@gmail.com",
+    "userId": "1762515884960",
+    "items": [
+      {
+        "productId": "green-striped-and-embroidered-mixed-cotton-panjabi-1762612525066",
+        "name": "Green Striped and Embroidered Mixed Cotton Panjabi",
+        "price": 900,
+        "quantity": 2,
+        "size": "0-3m",
+        "color": "Green",
+        "image": "https://mcprod.aarong.com/media/catalog/product/0/2/0270000017226.jpg?optimize=high&bg-color=255,255,255&fit=bounds&height=&width="
+      },
+      {
+        "productId": "hylith-1762672517840",
+        "name": "Hylith",
+        "price": 1.99,
+        "quantity": 1,
+        "size": "Default",
+        "color": "Blue",
+        "image": "http://localhost:3001/uploads/product-1762672465983-571238878.png"
+      }
+    ],
+    "shipping": {
+      "method": "Standard Shipping",
+      "cost": 100
+    },
+    "payment": {
+      "method": "Cash on Delivery"
+    },
+    "address": {
+      "firstName": "Shajedul",
+      "lastName": "Islam",
+      "mobileNumber": "01712083696",
+      "streetAddress": "Shahjahanpur, B-Block, Bogura Cantonment- Bogura",
+      "country": "Bangladesh",
+      "regionState": "Faridpur",
+      "cityArea": "Saltha",
+      "zipPostalCode": "5800",
+      "sameAddress": true,
+      "deliveryInstructions": ""
+    },
+    "status": "order_confirmation",
+    "adminStatus": "",
+    "shipperName": "",
+    "createdAt": "2025-11-20T06:47:35.718Z",
+    "updatedAt": "2025-11-20T06:54:08.978Z",
+    "cancelledAt": null,
+    "cancelledBy": null
+  },
+  {
+    "id": "1763625160986",
+    "orderNumber": "TT-1763625160986-735",
+    "email": "raiyanbinrashid0@gmail.com",
+    "userId": "1762515884960",
+    "items": [
+      {
+        "productId": "green-striped-and-embroidered-mixed-cotton-panjabi-1762612525066",
+        "name": "Green Striped and Embroidered Mixed Cotton Panjabi",
+        "price": 900,
+        "quantity": 2,
+        "size": "0-3m",
+        "color": "Green",
+        "image": "https://mcprod.aarong.com/media/catalog/product/0/2/0270000017226.jpg?optimize=high&bg-color=255,255,255&fit=bounds&height=&width="
+      },
+      {
+        "productId": "hylith-1762672517840",
+        "name": "Hylith",
+        "price": 1.99,
+        "quantity": 1,
+        "size": "Default",
+        "color": "Blue",
+        "image": "http://localhost:3001/uploads/product-1762672465983-571238878.png"
+      }
+    ],
+    "shipping": {
+      "method": "Standard Shipping",
+      "cost": 100
+    },
+    "payment": {
+      "method": "Cash on Delivery"
+    },
+    "address": {
+      "firstName": "Shajedul",
+      "lastName": "Islam",
+      "mobileNumber": "01712083696",
+      "streetAddress": "Shahjahanpur, B-Block, Bogura Cantonment- Bogura",
+      "country": "Bangladesh",
+      "regionState": "Cox&#x27;s Bazar",
+      "cityArea": "Cox&#x27;s Bazar Sadar",
+      "zipPostalCode": "5800",
+      "sameAddress": true,
+      "deliveryInstructions": ""
+    },
+    "status": "pending",
+    "adminStatus": null,
+    "shipperName": null,
+    "createdAt": "2025-11-20T07:52:40.986Z",
+    "updatedAt": "2025-11-20T07:52:40.986Z",
+    "cancelledAt": null,
+    "cancelledBy": null
+  },
+  {
+    "id": "1763626135369",
+    "orderNumber": "TT-1763626135370-35",
+    "email": "raiyanbinrashid0@gmail.com",
+    "userId": "1762515884960",
+    "items": [
+      {
+        "productId": "green-striped-and-embroidered-mixed-cotton-panjabi-1762612525066",
+        "name": "Green Striped and Embroidered Mixed Cotton Panjabi",
+        "price": 900,
+        "quantity": 2,
+        "size": "0-3m",
+        "color": "Green",
+        "image": "https://mcprod.aarong.com/media/catalog/product/0/2/0270000017226.jpg?optimize=high&bg-color=255,255,255&fit=bounds&height=&width="
+      },
+      {
+        "productId": "hylith-1762672517840",
+        "name": "Hylith",
+        "price": 1.99,
+        "quantity": 1,
+        "size": "Default",
+        "color": "Blue",
+        "image": "http://localhost:3001/uploads/product-1762672465983-571238878.png"
+      }
+    ],
+    "shipping": {
+      "method": "Standard Shipping",
+      "cost": 100
+    },
+    "payment": {
+      "method": "Cash on Delivery"
+    },
+    "address": {
+      "firstName": "Shajedul",
+      "lastName": "Islam",
+      "mobileNumber": "01712083696",
+      "streetAddress": "Shahjahanpur, B-Block, Bogura Cantonment- Bogura",
+      "country": "Bangladesh",
+      "regionState": "Cumilla",
+      "cityArea": "Titas",
+      "zipPostalCode": "5800",
+      "sameAddress": true,
+      "deliveryInstructions": ""
+    },
+    "status": "approved",
+    "adminStatus": null,
+    "shipperName": null,
+    "createdAt": "2025-11-20T08:08:55.369Z",
+    "updatedAt": "2025-11-20T08:25:53.490Z",
+    "cancelledAt": null,
+    "cancelledBy": null
+  },
+  {
+    "id": "1763631184195",
+    "orderNumber": "TT-1763631184195-459",
+    "email": "raiyanbinrashid0@gmail.com",
+    "userId": "1762515884960",
+    "items": [
+      {
+        "productId": "green-striped-and-embroidered-mixed-cotton-panjabi-1762612525066",
+        "name": "Green Striped and Embroidered Mixed Cotton Panjabi",
+        "price": 900,
+        "quantity": 2,
+        "size": "0-3m",
+        "color": "Green",
+        "image": "https://mcprod.aarong.com/media/catalog/product/0/2/0270000017226.jpg?optimize=high&bg-color=255,255,255&fit=bounds&height=&width="
+      },
+      {
+        "productId": "hylith-1762672517840",
+        "name": "Hylith",
+        "price": 1.99,
+        "quantity": 1,
+        "size": "Default",
+        "color": "Blue",
+        "image": "http://localhost:3001/uploads/product-1762672465983-571238878.png"
+      }
+    ],
+    "shipping": {
+      "method": "Standard Shipping",
+      "cost": 100
+    },
+    "payment": {
+      "method": "Cash on Delivery"
+    },
+    "address": {
+      "firstName": "Shajedul",
+      "lastName": "Islam",
+      "mobileNumber": "01712083696",
+      "streetAddress": "Shahjahanpur, B-Block, Bogura Cantonment- Bogura",
+      "country": "Bangladesh",
+      "regionState": "Chuadanga",
+      "cityArea": "Chuadanga Sadar",
+      "zipPostalCode": "5800",
+      "sameAddress": true,
+      "deliveryInstructions": ""
+    },
+    "status": "pending",
+    "adminStatus": null,
+    "shipperName": null,
+    "createdAt": "2025-11-20T09:33:04.195Z",
+    "updatedAt": "2025-11-20T09:33:04.195Z",
     "cancelledAt": null,
     "cancelledBy": null
   }

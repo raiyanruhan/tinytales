@@ -77,7 +77,13 @@ function AppContent() {
     <>
       <TopProgressBar>
         <Header />
-        <main className="main-content" style={{ paddingTop: '80px' }}>
+        <main
+          id="main-content"
+          className="main-content"
+          style={{ paddingTop: '80px' }}
+          tabIndex={-1}
+          role="main"
+        >
           <PageTransition>
             <Routes>
               <Route path="/" element={<Home />} />
